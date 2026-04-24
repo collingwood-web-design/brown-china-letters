@@ -1,0 +1,163 @@
+<!DOCTYPE HTML>
+<!--
+	Story by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Story by HTML5 UP</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-preload shell-layout">
+
+		<button type="button" class="shell-video-toggle" id="toggle-video-column" aria-expanded="true" title="Hide video panel" aria-label="Hide video panel">
+			<span class="chevron" aria-hidden="true"></span>
+		</button>
+
+		<!-- Wrapper -->
+			<div id="wrapper" class="divided">
+
+				<!-- One: left = fixed video; right = iframe loads pages/*.html -->
+					<section class="banner style1 orient-right content-align-left image-position-center fullscreen onload-image-fade-in onload-content-fade-right">
+						<div class="content content-with-frame">
+							<iframe
+								class="content-pane"
+								name="site-content"
+								id="site-content"
+								src="pages/story.html"
+								title="Main content"
+							></iframe>
+						</div>
+						<div class="image">
+							<div class="hero-title-overlay" aria-label="Brown China Letters, 1912–1942">
+								<div class="hero-title-line hero-title-line-1">Brown China Letters</div>
+								<div class="hero-title-line hero-title-line-2">1912–1942</div>
+							</div>
+							<!-- Seamless loop: crossfade between two synced videos -->
+							<video id="hero-banner-video-a" class="hero-banner-video is-active" preload="auto" autoplay muted playsinline webkit-playsinline poster="images/placeholder.svg" aria-label="Family photo animation">
+								<source src="Smooth_Loop_Video_Generated.mp4" type="video/mp4" />
+							</video>
+							<video id="hero-banner-video-b" class="hero-banner-video" preload="auto" autoplay muted playsinline webkit-playsinline poster="images/placeholder.svg" aria-hidden="true" tabindex="-1">
+								<source src="Smooth_Loop_Video_Generated.mp4" type="video/mp4" />
+							</video>
+						</div>
+					</section>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/jquery.scrollex.min.js"></script>
+			<script src="assets/js/jquery.scrolly.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+			<script>
+				(function () {
+					var a = document.getElementById('hero-banner-video-a');
+					var b = document.getElementById('hero-banner-video-b');
+					if (!a || !b) return;
+
+					a.muted = true;
+					b.muted = true;
+
+					// Crossfade window (seconds). Increase for softer blend.
+					var XFADE = 0.85;
+					var active = a;
+					var standby = b;
+					var swapping = false;
+
+					function safePlay(v) {
+						var p = v.play();
+						if (p && typeof p.catch === 'function') p.catch(function () {});
+					}
+
+					function setActive(v) {
+						a.classList.toggle('is-active', v === a);
+						b.classList.toggle('is-active', v === b);
+					}
+
+					function maybeSwap() {
+						if (swapping) return;
+						if (!active.duration || !isFinite(active.duration)) return;
+						var remaining = active.duration - active.currentTime;
+						if (remaining > XFADE) return;
+
+						swapping = true;
+
+						// Start standby from 0 and fade it in over the end.
+						try { standby.currentTime = 0; } catch (e) {}
+						setActive(standby);
+						safePlay(standby);
+
+						// After crossfade, pause/reset old one and swap references.
+						window.setTimeout(function () {
+							try { active.pause(); } catch (e) {}
+							try { active.currentTime = 0; } catch (e) {}
+							var tmp = active;
+							active = standby;
+							standby = tmp;
+							swapping = false;
+						}, Math.max(0, XFADE * 1000));
+					}
+
+					function start() {
+						// Ensure initial state
+						setActive(active);
+						safePlay(active);
+					}
+
+					active.addEventListener('timeupdate', maybeSwap);
+					standby.addEventListener('timeupdate', maybeSwap);
+					active.addEventListener('ended', maybeSwap);
+
+					a.addEventListener('loadeddata', start);
+					b.addEventListener('loadeddata', start);
+					window.addEventListener('load', function () {
+						window.setTimeout(start, 150);
+					});
+				})();
+
+				(function () {
+					var body = document.body;
+					var btn = document.getElementById('toggle-video-column');
+					if (!btn || !body.classList.contains('shell-layout')) return;
+
+					function setCollapsed(collapsed) {
+						body.classList.toggle('shell-video-collapsed', collapsed);
+						btn.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+						btn.title = collapsed ? 'Show video panel' : 'Hide video panel';
+						btn.setAttribute('aria-label', btn.title);
+						try {
+							sessionStorage.setItem('shellVideoCollapsed', collapsed ? '1' : '0');
+						} catch (e) {}
+						var a = document.getElementById('hero-banner-video-a');
+						var b = document.getElementById('hero-banner-video-b');
+						if (collapsed) {
+							if (a) a.pause();
+							if (b) b.pause();
+						} else {
+							if (a) { var pa = a.play(); if (pa && typeof pa.catch === 'function') pa.catch(function () {}); }
+							if (b) { var pb = b.play(); if (pb && typeof pb.catch === 'function') pb.catch(function () {}); }
+						}
+					}
+
+					btn.addEventListener('click', function () {
+						setCollapsed(!body.classList.contains('shell-video-collapsed'));
+					});
+
+					try {
+						if (sessionStorage.getItem('shellVideoCollapsed') === '1') {
+							setCollapsed(true);
+						}
+					} catch (e) {}
+				})();
+			</script>
+
+	</body>
+</html>
