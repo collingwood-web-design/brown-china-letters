@@ -8,17 +8,69 @@
 		<style>
 			/* Keep type scale stable when iframe width changes */
 			html { font-size: 12pt; }
+
+			/*
+				Default stacked nav is max-width 22rem (main.css), which also squeezes helper copy.
+				Full-width list so helpers match .major; buttons stay the former column width (22rem).
+			*/
+			body.content-page .actions.stacked.story-nav-actions {
+				max-width: none;
+				width: 100%;
+			}
+
+			body.content-page .actions.stacked.story-nav-actions li > .button {
+				width: 22rem;
+				max-width: 100%;
+				box-sizing: border-box;
+			}
+
+			/* Tighter than global stacked li (1.3rem top) — helper + next button felt too far apart */
+			body.content-page .actions.stacked.story-nav-actions li:not(:first-child) {
+				padding-top: 0.55rem;
+			}
+
+			.story-nav-helper {
+				margin: 0.35rem 0 0.45rem;
+				font-size: 0.85rem;
+				line-height: 1.45;
+				color: #64748b;
+				font-style: italic;
+				width: 100%;
+				max-width: none;
+			}
 		</style>
 	</head>
 	<body class="content-page">
 		<div class="content-page-inner">
 			<h1>Homer and Muriel Brown</h1>
 			<p class="major">This website presents a remarkable collection of letters and historical insight into the lives of Homer and Muriel Brown, Canadian missionaries who served in West China from 1912 to 1942. Set against a backdrop of profound social and political change, their letters offer a deeply personal perspective on education, faith, family, and cross-cultural exchange during a transformative period in Chinese history.</p>
-			<ul class="actions stacked">
-				<li><a href="get-started.html" class="button big wide" target="site-content">Get Started</a></li>
-				<li><a href="chat.html" class="button" target="site-content">AI Assistant (chat)</a></li>
-				<li><a href="homer-and-muriel-brown.html" class="button" target="site-content">Homer and Muriel Brown</a></li>
-				<li><a href="gallery.html" class="button" target="site-content">Photo Gallery</a></li>
+			<ul class="actions stacked story-nav-actions">
+				<li>
+					<a href="get-started.html" class="button big wide" target="site-content">Get Started</a>
+					<p class="story-nav-helper">Placeholder: a short description for this section will be added as the page is built out.</p>
+				</li>
+				<li>
+					<a href="chat-narrator.html" class="button" target="site-content">Narrator</a>
+					<p class="story-nav-helper">
+						Narrator mode: experience the letters through a reflective, story-centered voice.
+					</p>
+				</li>
+				<li>
+					<a href="chat-historian.html" class="button" target="site-content">Historian</a>
+					<p class="story-nav-helper">
+						Historian mode: explore the letters with grounded historical interpretation and context.
+					</p>
+				</li>
+				<li>
+					<a href="homer-and-muriel-brown.html" class="button" target="site-content">Homer and Muriel Brown</a>
+					<p class="story-nav-helper">
+						A biography of their years in West China—the Canadian mission in Chengdu, their education and church roles, and family life from 1912 to 1942.
+					</p>
+				</li>
+				<li>
+					<a href="gallery.html" class="button" target="site-content">Photo Gallery</a>
+					<p class="story-nav-helper">Placeholder: a short description for this section will be added as the page is built out.</p>
+				</li>
 			</ul>
 			<!--
 				Link to other panes without reloading the video shell, same folder:

@@ -9169,7 +9169,7 @@ input, select, textarea {
 			min-width: 0;
 			margin-left: 0;
 			margin-right: 0;
-			padding-top: 1.25rem; /* nudge content down for editorial rhythm */
+			padding-top: 0; /* iframe column: keep flush; inner pages control their own header spacing */
 			transition:
 				flex-basis var(--shell-panel-duration) var(--shell-panel-ease),
 				max-width var(--shell-panel-duration) var(--shell-panel-ease);

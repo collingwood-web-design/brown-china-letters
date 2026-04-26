@@ -3,7 +3,7 @@
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-		<title>AI Assistant — Brown China Letters</title>
+		<title>Letters Guide — Brown China Letters</title>
 		<link rel="stylesheet" href="../assets/css/main.css" />
 		<style>
 			/* Keep type scale stable when iframe width changes */
@@ -22,55 +22,69 @@
 				padding: 0;
 				height: 100%;
 				font-family: Arial, Helvetica, sans-serif;
-				background: #f4f6f8;
+				background: #f0f2f5;
 				color: #1f2933;
 			}
 
 			body.chat-placeholder-page {
-				min-height: 100vh;
-			}
-
-			.chat-shell-link {
-				/* leave room for the shell chevron button (index.html) */
-				padding: 12px 24px 12px 76px;
-				border-bottom: 1px solid #d9e2ec;
-				background: #ffffff;
-				font-size: 0.9rem;
-			}
-
-			.chat-shell-link a {
-				color: #b07d44;
-				text-decoration: none;
-				font-weight: 600;
-			}
-
-			.chat-shell-link a:hover {
-				text-decoration: underline;
+				/* 100vh is the outer browser viewport — inside index.html’s iframe it leaves false “bottom margin”; use % height chain */
+				min-height: 100%;
 			}
 
 			.app-shell {
 				display: flex;
 				flex-direction: column;
-				min-height: calc(100vh - 49px);
+				min-height: 100%;
+				height: 100%;
 			}
 
 			.chat-header {
 				display: flex;
 				justify-content: space-between;
-				align-items: center;
-				gap: 16px;
-				padding: 20px 24px;
+				align-items: flex-start;
+				gap: 12px;
+				padding: 8px 20px 12px 20px;
 				border-bottom: 1px solid #d9e2ec;
 				background: #ffffff;
 			}
 
+			.chat-header-text {
+				min-width: 0;
+				flex: 1;
+			}
+
+			/* main.css sets h1 { margin-bottom: 1rem } — too loose for this compact header */
 			.chat-header h1 {
-				margin: 0;
+				margin: 0 0 0.35rem 0;
 				font-size: 1.5rem;
+				line-height: 1.25;
+			}
+
+			/* main.css sets p { margin-bottom: 2rem } — removes huge gap above back link */
+			.chat-header .subtitle {
+				margin: 0;
+			}
+
+			.chat-back-link {
+				margin-top: 4px;
+				font-size: 0.9rem;
+			}
+
+			.chat-back-link a {
+				color: #b07d44;
+				text-decoration: none;
+				font-weight: 600;
+			}
+
+			.chat-back-link a:hover {
+				text-decoration: underline;
+			}
+
+			.chat-header .status-pill {
+				margin-top: 2px;
 			}
 
 			.subtitle {
-				margin: 4px 0 0;
 				color: #52606d;
 				font-size: 0.95rem;
 			}
@@ -95,34 +109,32 @@
 				color: #c81e1e;
 			}
 
-			.send-button:disabled {
-				opacity: 0.55;
-				cursor: not-allowed;
-				transform: none;
-			}
-
 			.chat-main {
 				display: flex;
 				flex-direction: column;
 				flex: 1;
+				min-height: 0;
 				max-width: 1100px;
 				width: 100%;
 				margin: 0 auto;
-				padding: 24px;
-				gap: 20px;
+				padding: 12px 24px 8px 24px;
+				gap: 10px;
+				background: #f0f2f5;
 			}
 
 			.chat-history {
 				flex: 1;
+				min-height: 0;
 				overflow-y: auto;
-				padding: 8px 4px 24px;
+				padding: 6px 2px 12px;
 			}
 
 			.message-row {
 				display: flex;
 				align-items: flex-start;
-				gap: 12px;
-				margin-bottom: 18px;
+				gap: 8px;
+				margin-bottom: 12px;
+				width: 100%;
 			}
 
 			.message-row.user {
@@ -130,132 +142,281 @@
 			}
 
 			.avatar {
-				min-width: 46px;
-				height: 46px;
-				border-radius: 50%;
-				background: #ffffff;
-				color: #000000;
+				flex-shrink: 0;
+				height: 26px;
+				min-width: 26px;
+				padding: 0 7px;
+				border-radius: 6px;
 				display: flex;
 				align-items: center;
 				justify-content: center;
-				font-size: 0.8rem;
-				font-weight: 700;
-				box-shadow:
-					inset 0 0 0 1px rgba(0, 0, 0, 0.28),
-					0 2px 10px rgba(0, 0, 0, 0.06);
+				font-size: 0.62rem;
+				font-weight: 600;
+				letter-spacing: 0.02em;
+				line-height: 1;
+				white-space: nowrap;
+			}
+
+			.avatar-user {
+				background: #1e293b;
+				color: #f8fafc;
+			}
+
+			.avatar-assistant {
+				background: #0f766e;
+				color: #ecfdf5;
 			}
 
 			.message-bubble {
-				max-width: min(70%, 780px);
-				padding: 14px 16px;
-				border-radius: 3.75em;
+				flex: 1 1 auto;
+				min-width: 0;
+				max-width: 100%;
+				padding: 8px 12px;
+				border-radius: 6px;
 				background: #ffffff;
-				box-shadow:
-					inset 0 0 0 1px rgba(0, 0, 0, 0.28),
-					0 2px 10px rgba(0, 0, 0, 0.06);
-				line-height: 1.5;
+				border: 1px solid rgba(15, 23, 42, 0.06);
+				box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+				line-height: 1.45;
+				font-size: 0.8125rem;
+				color: #1f2937;
 			}
 
 			.message-row.user .message-bubble {
 				background: #ffffff;
 			}
 
-			.message-bubble p {
+			.message-row.user .message-bubble > p.message-text {
 				margin: 0;
 				white-space: pre-wrap;
 				word-break: break-word;
 			}
 
+			.message-bubble .message-md {
+				word-break: break-word;
+			}
+
+			.message-bubble .message-md > :first-child {
+				margin-top: 0;
+			}
+
+			.message-bubble .message-md > :last-child {
+				margin-bottom: 0;
+			}
+
+			.message-bubble .message-md p {
+				margin: 0 0 0.65em;
+				white-space: normal;
+			}
+
+			.message-bubble .message-md ul,
+			.message-bubble .message-md ol {
+				margin: 0 0 0.65em;
+				padding-left: 1.25em;
+			}
+
+			.message-bubble .message-md h1,
+			.message-bubble .message-md h2,
+			.message-bubble .message-md h3 {
+				font-size: 1em;
+				font-weight: 600;
+				margin: 0.75em 0 0.35em;
+				line-height: 1.3;
+			}
+
+			.message-bubble .message-md h1:first-child,
+			.message-bubble .message-md h2:first-child,
+			.message-bubble .message-md h3:first-child {
+				margin-top: 0;
+			}
+
+			.message-bubble .message-md strong {
+				font-weight: 600;
+			}
+
+			.message-bubble .message-md a {
+				color: #0f766e;
+				text-decoration: underline;
+			}
+
+			.message-bubble .message-md blockquote {
+				margin: 0.5em 0;
+				padding-left: 0.75em;
+				border-left: 3px solid #cbd5e1;
+				color: #475569;
+			}
+
+			.message-bubble .message-md pre {
+				overflow-x: auto;
+				margin: 0.5em 0;
+				padding: 0.55em 0.65em;
+				font-size: 0.78rem;
+				background: #f1f5f9;
+				border-radius: 4px;
+			}
+
+			.message-bubble .message-md code {
+				font-family: ui-monospace, Consolas, monospace;
+				font-size: 0.9em;
+				background: #f1f5f9;
+				padding: 0.08em 0.3em;
+				border-radius: 3px;
+			}
+
+			.message-bubble .message-md pre code {
+				background: none;
+				padding: 0;
+				font-size: inherit;
+			}
+
+			.message-bubble.message-bubble--thinking {
+				flex: 0 0 auto;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				box-sizing: border-box;
+				padding: 0;
+				border-radius: 6px;
+			}
+
+			.thinking-dots {
+				display: flex;
+				align-items: center;
+				gap: 3px;
+				padding: 0;
+			}
+
+			.thinking-dots span {
+				width: 4px;
+				height: 4px;
+				border-radius: 50%;
+				background: #0d9488;
+				opacity: 0.35;
+				animation: thinking-dot 1s ease-in-out infinite;
+			}
+
+			.thinking-dots span:nth-child(2) {
+				animation-delay: 0.15s;
+			}
+
+			.thinking-dots span:nth-child(3) {
+				animation-delay: 0.3s;
+			}
+
+			@keyframes thinking-dot {
+				0%,
+				100% {
+					opacity: 0.3;
+					transform: translateY(0);
+				}
+				50% {
+					opacity: 1;
+					transform: translateY(-2px);
+				}
+			}
+
 			.chat-input-area {
 				display: flex;
-				align-items: flex-end;
-				gap: 12px;
-				padding: 16px;
-				border: 1px solid #d9e2ec;
-				border-radius: 18px;
+				flex-shrink: 0;
+				align-items: center;
+				gap: 8px;
+				padding: 6px 8px 6px 12px;
+				border: 1px solid rgba(15, 23, 42, 0.08);
+				border-radius: 12px;
 				background: #ffffff;
-				box-shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+				box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
 			}
 
 			.chat-input {
 				flex: 1;
 				resize: none;
-				border: none;
+				border: none !important;
 				outline: none;
-				font-size: 1rem;
-				line-height: 1.5;
-				min-height: 52px;
-				max-height: 180px;
+				font-size: 0.8125rem;
+				line-height: 1.35;
+				min-height: 34px;
+				max-height: 120px;
+				padding: 8px 4px 8px 0;
 				background: transparent;
-				color: #102a43;
+				color: #1f2937;
 				font-family: inherit;
+				box-shadow: none !important;
+			}
+
+			.chat-input:focus,
+			.chat-input:focus-visible {
+				outline: none;
+				border: none !important;
+				box-shadow: none !important;
+			}
+
+			.chat-input::placeholder {
+				color: #94a3b8;
 			}
 
 			.send-button {
+				flex-shrink: 0;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				width: 34px;
+				height: 34px;
+				padding: 0;
 				border: 0;
-				border-radius: 3.75em;
-				padding: 0 2.5em;
-				height: 3.75em;
-				line-height: 3.75em;
-				background: transparent;
-				box-shadow:
-					inset 0 0 0 1px rgba(0, 0, 0, 0.28),
-					0 2px 10px rgba(0, 0, 0, 0.06);
-				color: #000000;
-				font-size: 0.75rem;
-				font-weight: 400;
-				letter-spacing: 0.125em;
-				text-transform: uppercase;
+				border-radius: 50%;
+				background: #0d9488;
+				color: #ffffff;
 				cursor: pointer;
-				transition: background-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out, color 0.2s ease-in-out, transform 0.2s ease;
-				font-family: inherit;
+				transition: background-color 0.15s ease, transform 0.1s ease;
+			}
+
+			.send-button svg {
+				display: block;
 			}
 
 			.send-button:hover {
-				box-shadow:
-					inset 0 0 0 1px #b07d44,
-					0 4px 14px rgba(0, 0, 0, 0.08);
-				color: #b07d44;
+				background: #0f766e;
 			}
 
 			.send-button:active {
-				transform: translateY(1px);
+				transform: scale(0.96);
+			}
+
+			.send-button:disabled {
+				opacity: 0.45;
+				cursor: not-allowed;
+				transform: none;
 			}
 
 			@media screen and (max-width: 768px) {
 				.chat-header {
-					padding: 16px;
+					padding: 8px 16px 10px 16px;
 				}
 
 				.chat-main {
 					padding: 16px;
 				}
 
-				.message-bubble {
-					max-width: 82%;
-				}
-
 				.chat-input-area {
-					flex-direction: column;
-					align-items: stretch;
-				}
-
-				.send-button {
-					width: 100%;
-				}
-
-				.chat-shell-link {
-					padding-left: 76px;
+					align-items: center;
 				}
 			}
 		</style>
 	</head>
 
 	<body class="chat-placeholder-page">
+		<script src="https://cdn.jsdelivr.net/npm/marked@11.2.0/marked.min.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/dompurify@3.2.2/dist/purify.min.js"></script>
 		<script src="../brown-china-api-client.js"></script>
 <script>
   (function () {
-    var API_BASE = "https://web-production-7ed4a.up.railway.app/";
+    var params = new URLSearchParams(window.location.search);
+    var apiBaseParam = (params.get("apiBase") || "").trim();
+    var isLocalHost =
+      window.location.hostname === "127.0.0.1" ||
+      window.location.hostname === "localhost";
+    var API_BASE = apiBaseParam || (isLocalHost
+      ? "http://127.0.0.1:8000"
+      : "https://web-production-7ed4a.up.railway.app");
 
     // Example: non-streaming reply — wire this to her "Send" button / form.
     function sendMessage(userText, priorMessages, agent) {
@@ -297,15 +458,14 @@
     window.BrownChinaExample = { sendMessage: sendMessage, sendMessageStream: sendMessageStream };
   })();
 </script>
-		<div class="chat-shell-link">
-			<a href="story.html" target="site-content">← Back to Home Page</a>
-		</div>
-
 		<div class="app-shell">
 			<header class="chat-header">
-				<div>
-					<h1>AI Assistant</h1>
-					<p class="subtitle">Ask questions about the letters archive; each reply uses your full thread on this page.</p>
+				<div class="chat-header-text">
+					<h1 id="chatModeTitle">Letters Guide</h1>
+					<p class="subtitle" id="chatModeSubtitle">Ask questions about the letters archive; each reply uses your full thread on this page.</p>
+					<div class="chat-back-link">
+						<a href="story.html" target="site-content">← Back to Home Page</a>
+					</div>
 				</div>
 				<div class="status-pill" id="chatStatusPill">Ready</div>
 			</header>
@@ -318,10 +478,15 @@
 					<textarea
 						id="userInput"
 						class="chat-input"
-						placeholder="Type your message here..."
+						placeholder="Ask about the letters…"
 						rows="1"
 					></textarea>
-					<button type="submit" class="send-button" id="chatSendButton">Send</button>
+					<button type="submit" class="send-button" id="chatSendButton" aria-label="Send message">
+						<svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round">
+							<path d="M5 12h14" />
+							<path d="M13 6l6 6-6 6" />
+						</svg>
+					</button>
 				</form>
 			</main>
 		</div>
@@ -333,6 +498,29 @@
 				const chatHistory = document.getElementById("chatHistory");
 				const statusPill = document.getElementById("chatStatusPill");
 				const sendButton = document.getElementById("chatSendButton");
+				const chatModeTitle = document.getElementById("chatModeTitle");
+				const chatModeSubtitle = document.getElementById("chatModeSubtitle");
+
+				const params = new URLSearchParams(window.location.search);
+				const requestedAgent = (params.get("agent") || "").toLowerCase();
+				const agent = requestedAgent === "historian" ? "historian" : "narrator";
+				const modeLabel = agent === "historian" ? "Historian" : "Narrator";
+				const titleText = modeLabel + " — Letters Guide";
+				const subtitleText =
+					agent === "historian"
+						? "Historian mode: explore the letters with grounded historical interpretation and context."
+						: "Narrator mode: experience the letters through a reflective, story-centered voice.";
+
+				document.title = titleText + " — Brown China Letters";
+				chatModeTitle.textContent = titleText;
+				chatModeSubtitle.textContent = subtitleText;
+
+				if (window.marked && typeof window.marked.setOptions === "function") {
+					window.marked.setOptions({
+						gfm: true,
+						breaks: true,
+					});
+				}
 
 				/** Prior turns only; current user text is sent in `message` on the wire. */
 				const conversationHistory = [];
@@ -346,27 +534,118 @@
 					if (mode === "error") statusPill.classList.add("error");
 				}
 
+				function escapeHtml(s) {
+					return String(s)
+						.replace(/&/g, "&amp;")
+						.replace(/</g, "&lt;")
+						.replace(/>/g, "&gt;")
+						.replace(/"/g, "&quot;");
+				}
+
+				function renderAssistantMarkdown(md) {
+					const raw = md || "";
+					if (!window.marked || !window.marked.parse || !window.DOMPurify) {
+						return "<p>" + escapeHtml(raw) + "</p>";
+					}
+					try {
+						const html = window.marked.parse(raw);
+						return window.DOMPurify.sanitize(html);
+					} catch (e) {
+						return "<p>" + escapeHtml(raw) + "</p>";
+					}
+				}
+
+				function setAssistantContent(aiUi, md) {
+					if (!aiUi || !aiUi.contentEl) return;
+					aiUi.contentEl.innerHTML = renderAssistantMarkdown(md);
+				}
+
+				function clearAssistantThinking(aiUi) {
+					if (!aiUi || !aiUi.bubble) return;
+					aiUi.bubble.classList.remove("message-bubble--thinking");
+					const dots = aiUi.bubble.querySelector(".thinking-dots");
+					if (dots) dots.remove();
+					if (aiUi.contentEl) aiUi.contentEl.style.display = "";
+					aiUi.bubble.style.minWidth = "";
+					aiUi.bubble.style.minHeight = "";
+					aiUi.bubble.style.height = "";
+				}
+
+				function syncThinkingBubbleToAvatar(avatarEl, bubbleEl) {
+					if (!avatarEl || !bubbleEl) return;
+					function apply() {
+						const w = avatarEl.offsetWidth;
+						const h = avatarEl.offsetHeight;
+						if (w && h) {
+							bubbleEl.style.minWidth = w + "px";
+							bubbleEl.style.minHeight = h + "px";
+							bubbleEl.style.height = h + "px";
+						}
+					}
+					apply();
+					requestAnimationFrame(apply);
+				}
+
 				function appendMessage(role, text) {
 					const row = document.createElement("div");
 					row.className = "message-row " + role;
 
 					const avatar = document.createElement("div");
-					avatar.className = "avatar";
-					avatar.textContent = role === "user" ? "YOU" : "AI";
+					avatar.className =
+						"avatar " + (role === "user" ? "avatar-user" : "avatar-assistant");
+					avatar.textContent = role === "user" ? "You" : modeLabel;
 
 					const bubble = document.createElement("div");
 					bubble.className = "message-bubble";
 
-					const paragraph = document.createElement("p");
-					paragraph.textContent = text;
+					const contentEl =
+						role === "user"
+							? document.createElement("p")
+							: document.createElement("div");
+					if (role === "user") {
+						contentEl.className = "message-text";
+						contentEl.textContent = text;
+					} else {
+						contentEl.className = "message-md";
+						contentEl.innerHTML = text
+							? renderAssistantMarkdown(text)
+							: "";
+					}
 
-					bubble.appendChild(paragraph);
+					if (role === "ai" && text === "") {
+						bubble.classList.add("message-bubble--thinking");
+						const dots = document.createElement("div");
+						dots.className = "thinking-dots";
+						dots.setAttribute("role", "status");
+						dots.setAttribute("aria-live", "polite");
+						dots.setAttribute(
+							"aria-label",
+							modeLabel + " is preparing a reply",
+						);
+						for (let i = 0; i < 3; i++) {
+							dots.appendChild(document.createElement("span"));
+						}
+						bubble.appendChild(dots);
+						contentEl.style.display = "none";
+						contentEl.innerHTML = "";
+					}
+
+					bubble.appendChild(contentEl);
 					row.appendChild(avatar);
 					row.appendChild(bubble);
 					chatHistory.appendChild(row);
 
+					if (role === "ai" && text === "") {
+						syncThinkingBubbleToAvatar(avatar, bubble);
+					}
+
 					chatHistory.scrollTop = chatHistory.scrollHeight;
-					return { row: row, paragraph: paragraph };
+					return {
+						row: row,
+						contentEl: contentEl,
+						bubble: bubble,
+						avatar: avatar,
+					};
 				}
 
 				function abortPendingTurn(userUi, aiUi) {
@@ -379,11 +658,25 @@
 					userInput.style.height = userInput.scrollHeight + "px";
 				}
 
+				function focusChatInput() {
+					requestAnimationFrame(function () {
+						try {
+							if (userInput && !userInput.disabled) {
+								userInput.focus({ preventScroll: true });
+							}
+						} catch (e) {}
+					});
+				}
+
 				function setSending(sending) {
 					isSending = sending;
 					sendButton.disabled = sending;
 					userInput.disabled = sending;
-					if (sending) setStatus("Thinking…", "busy");
+					if (sending) {
+						setStatus("Thinking…", "busy");
+					} else {
+						focusChatInput();
+					}
 				}
 
 				userInput.addEventListener("input", autoResizeTextarea);
@@ -395,6 +688,7 @@
 					if (!message || isSending) return;
 					if (!window.BrownChinaExample || !window.BrownChinaExample.sendMessageStream) {
 						setStatus("Chat client missing", "error");
+						focusChatInput();
 						return;
 					}
 
@@ -420,7 +714,8 @@
 						if (settled) return;
 						settled = true;
 						const text = fullText || "";
-						aiUi.paragraph.textContent = text;
+						clearAssistantThinking(aiUi);
+						setAssistantContent(aiUi, text);
 						conversationHistory.push({ role: "user", content: message });
 						conversationHistory.push({ role: "assistant", content: text });
 						setSending(false);
@@ -432,9 +727,10 @@
 						.sendMessageStream(
 							message,
 							priorForApi,
-							"narrator",
+							agent,
 							function (_chunk, fullSoFar) {
-								aiUi.paragraph.textContent = fullSoFar || "";
+								if (fullSoFar) clearAssistantThinking(aiUi);
+								setAssistantContent(aiUi, fullSoFar || "");
 								chatHistory.scrollTop = chatHistory.scrollHeight;
 							},
 							onSuccess,
@@ -451,6 +747,13 @@
 						chatForm.requestSubmit();
 					}
 				});
+
+				if (document.readyState === "complete") {
+					focusChatInput();
+				} else {
+					window.addEventListener("load", focusChatInput);
+				}
+				requestAnimationFrame(focusChatInput);
 			})();
 		</script>
 	</body>
