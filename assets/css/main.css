@@ -8988,18 +8988,18 @@ input, select, textarea {
 		padding-right: 2.35em;
 	}
 
-	/* button.shell-video-*: beat global button:hover/active #47D3E5 !important */
+	/* button.shell-video-*: vertical "folder tab" attached to the panel edge */
 	button.shell-video-toggle {
 		position: fixed;
 		top: 1rem;
 		left: 1rem;
 		right: auto;
 		z-index: 10002;
-		width: 44px;
-		height: 44px;
-		border-radius: 50%;
+		width: 26px;
+		height: 64px;
+		border-radius: 13px;
 		border: 1px solid #c69c6d;
-		background: rgba(255, 255, 255, 0.9);
+		background: rgba(255, 255, 255, 0.95);
 		box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06) !important;
 		cursor: pointer;
 		display: none;
@@ -9018,6 +9018,7 @@ input, select, textarea {
 			color 0.2s ease,
 			box-shadow 0.2s ease,
 			transform 0.2s ease,
+			top 0.4s ease,
 			left 0.4s ease,
 			right 0.4s ease;
 	}
@@ -9057,18 +9058,112 @@ input, select, textarea {
 		content: '\203A';
 	}
 
+	/* Show chevron at all screen sizes (tablet + mobile included) */
+	body.shell-layout button.shell-video-toggle {
+		display: flex;
+	}
+
+	/* Stacked layout (tablet/mobile portrait): horizontal tab placed at the
+	   boundary between the video (top) and the content section (below).
+	   Clicking it collapses the video panel so content rises to full height. */
+	@media screen and (max-width: 980px) {
+
+		body.shell-layout button.shell-video-toggle {
+			top: 50vh; /* video height in portrait + fullscreen */
+			left: 50%;
+			right: auto;
+			width: 64px;
+			height: 26px;
+			border-radius: 13px;
+			-moz-transform: translate(-50%, -50%);
+			-webkit-transform: translate(-50%, -50%);
+			-ms-transform: translate(-50%, -50%);
+			transform: translate(-50%, -50%);
+		}
+
+		/* Tablet/mobile: rotate chevron so it points UP (and DOWN when collapsed) */
+		body.shell-layout .shell-video-toggle .chevron {
+			-moz-transform: rotate(90deg);
+			-webkit-transform: rotate(90deg);
+			-ms-transform: rotate(90deg);
+			transform: rotate(90deg);
+		}
+
+		/* Collapsed: video gone, pin the tab flush to the top of the viewport,
+		   flat on the top (attached) and rounded on the bottom (hanging into content). */
+		body.shell-layout.shell-video-collapsed button.shell-video-toggle {
+			top: 0 !important;
+			left: 50% !important;
+			right: auto !important;
+			-moz-transform: translate(-50%, 0) !important;
+			-webkit-transform: translate(-50%, 0) !important;
+			-ms-transform: translate(-50%, 0) !important;
+			transform: translate(-50%, 0) !important;
+			border-top-left-radius: 0 !important;
+			border-top-right-radius: 0 !important;
+			border-top: none !important;
+		}
+
+		body.shell-layout .banner.style1 .image {
+			-moz-transition:
+				height var(--shell-panel-duration) var(--shell-panel-ease),
+				opacity var(--shell-opacity-duration) var(--shell-panel-ease),
+				visibility 0s;
+			-webkit-transition:
+				height var(--shell-panel-duration) var(--shell-panel-ease),
+				opacity var(--shell-opacity-duration) var(--shell-panel-ease),
+				visibility 0s;
+			transition:
+				height var(--shell-panel-duration) var(--shell-panel-ease),
+				opacity var(--shell-opacity-duration) var(--shell-panel-ease),
+				visibility 0s;
+		}
+
+		body.shell-layout.shell-video-collapsed .banner.style1 .image,
+		body.shell-layout.shell-video-collapsed .banner.style1.fullscreen .image {
+			height: 0 !important;
+			min-height: 0 !important;
+			opacity: 0;
+			overflow: hidden;
+			pointer-events: none;
+			visibility: hidden;
+		}
+
+		body.shell-layout.shell-video-collapsed .banner.style1 .content,
+		body.shell-layout.shell-video-collapsed .banner.style1 .content.content-with-frame {
+			min-height: 100vh;
+		}
+
+	}
+
 	@media screen and (min-width: 981px) {
 
 		body.shell-layout button.shell-video-toggle {
 			display: flex;
 		}
 
-		/* Video on left ~50%: park toggle on inner-right of video (near divider) */
+		/* Desktop landscape: anchor the vertical tab on the right edge of the
+		   left media panel, vertically centered like a folder tab — half
+		   overlapping the right (white) panel. Right panel does not shift
+		   because the button is fixed-positioned. */
 		@media screen and (orientation: landscape) {
 
 			body.shell-layout:not(.shell-video-collapsed) button.shell-video-toggle {
-				left: calc(50vw - 44px - 1rem);
+				top: 50%;
+				left: 50vw;
 				right: auto;
+				z-index: 10003;
+				-moz-transform: translate(-50%, -50%);
+				-webkit-transform: translate(-50%, -50%);
+				-ms-transform: translate(-50%, -50%);
+				transform: translate(-50%, -50%);
+			}
+
+			/* On smaller landscape the left panel widens to 54%; track that edge. */
+			@media screen and (max-width: 1280px) {
+				body.shell-layout:not(.shell-video-collapsed) button.shell-video-toggle {
+					left: 54vw;
+				}
 			}
 
 		}
@@ -9087,6 +9182,22 @@ input, select, textarea {
 		body.shell-layout.shell-video-collapsed button.shell-video-toggle {
 			left: 1rem !important;
 			right: auto !important;
+		}
+
+		/* Collapsed: tab pinned flush to the left edge of the viewport, vertically
+		   centered. Flat on the left (the attached side), rounded on the right
+		   (the side that hangs into the content). */
+		body.shell-layout.shell-video-collapsed button.shell-video-toggle {
+			top: 50% !important;
+			left: 0 !important;
+			right: auto !important;
+			-moz-transform: translateY(-50%) !important;
+			-webkit-transform: translateY(-50%) !important;
+			-ms-transform: translateY(-50%) !important;
+			transform: translateY(-50%) !important;
+			border-top-left-radius: 0 !important;
+			border-bottom-left-radius: 0 !important;
+			border-left: none !important;
 		}
 
 		body.shell-layout .banner.style1 .image {

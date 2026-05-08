@@ -90,13 +90,7 @@
 			}
 
 			.status-pill {
-				padding: 8px 12px;
-				border-radius: 999px;
-				background: #e6f4ea;
-				color: #1e7a34;
-				font-size: 0.9rem;
-				font-weight: 600;
-				white-space: nowrap;
+				display: none !important;
 			}
 
 			.status-pill.busy {
@@ -358,15 +352,21 @@
 				display: flex;
 				align-items: center;
 				justify-content: center;
-				width: 34px;
-				height: 34px;
+				width: 36px;
+				height: 36px;
 				padding: 0;
-				border: 0;
+				border: 1px solid #c69c6d;
 				border-radius: 50%;
-				background: #0d9488;
-				color: #ffffff;
+				background: #ffffff;
+				color: #b07d44;
 				cursor: pointer;
-				transition: background-color 0.15s ease, transform 0.1s ease;
+				box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+				transition:
+					background-color 0.2s ease,
+					border-color 0.2s ease,
+					color 0.2s ease,
+					box-shadow 0.2s ease,
+					transform 0.1s ease;
 			}
 
 			.send-button svg {
@@ -374,10 +374,15 @@
 			}
 
 			.send-button:hover {
-				background: #0f766e;
+				background: rgba(198, 156, 109, 0.08);
+				border-color: #c69c6d;
+				color: #8e6a3f;
+				box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 			}
 
 			.send-button:active {
+				background: rgba(198, 156, 109, 0.14);
+				color: #8e6a3f;
 				transform: scale(0.96);
 			}
 
