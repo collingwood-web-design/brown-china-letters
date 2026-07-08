@@ -62,14 +62,105 @@
 
 		.curator-topbar a:hover { text-decoration: underline; }
 
-		.desktop-notice {
-			flex-shrink: 0;
-			padding: 0.45rem 1.25rem;
-			background: #f5f0e6;
-			border-bottom: 1px solid #e0d8c8;
-			font-size: 0.8rem;
+		/* Small-screen advisory modal */
+		.screen-advisory-backdrop {
+			position: fixed;
+			inset: 0;
+			z-index: 2000;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			padding: 1.25rem;
+			background: rgba(28, 24, 18, 0.55);
+			backdrop-filter: blur(2px);
+		}
+
+		.screen-advisory-backdrop[hidden] {
+			display: none !important;
+		}
+
+		.screen-advisory {
+			width: min(100%, 28rem);
+			background: #fff;
+			border-radius: 8px;
+			box-shadow: 0 12px 40px rgba(0, 0, 0, 0.22);
+			border: 1px solid #e0d8c8;
+			overflow: hidden;
+		}
+
+		.screen-advisory-header {
+			padding: 1.25rem 1.35rem 0.5rem;
+		}
+
+		.screen-advisory-header h2 {
+			margin: 0 0 0.35rem;
+			font-size: 1.2rem;
+			font-weight: 600;
+			color: #2c2416;
+		}
+
+		.screen-advisory-header p {
+			margin: 0;
+			font-size: 0.88rem;
 			color: #6b5d4a;
-			line-height: 1.4;
+			line-height: 1.5;
+		}
+
+		.screen-advisory-body {
+			padding: 0.75rem 1.35rem 1.1rem;
+			font-size: 0.92rem;
+			line-height: 1.55;
+			color: #3d362c;
+		}
+
+		.screen-advisory-body p {
+			margin: 0 0 0.85rem;
+		}
+
+		.screen-advisory-body p:last-child {
+			margin-bottom: 0;
+		}
+
+		.screen-advisory-actions {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 0.6rem;
+			padding: 0 1.35rem 1.25rem;
+		}
+
+		.screen-advisory-actions .btn-primary,
+		.screen-advisory-actions .btn-secondary {
+			flex: 1 1 auto;
+			min-width: 8rem;
+			padding: 0.55rem 1rem;
+			font-size: 0.88rem;
+			font-weight: 600;
+			border-radius: 4px;
+			cursor: pointer;
+			text-align: center;
+			text-decoration: none;
+			border: 1px solid transparent;
+			font-family: inherit;
+		}
+
+		.screen-advisory-actions .btn-primary {
+			background: #9a6b35;
+			color: #fff;
+			border-color: #7a5528;
+		}
+
+		.screen-advisory-actions .btn-primary:hover {
+			background: #7a5528;
+		}
+
+		.screen-advisory-actions .btn-secondary {
+			background: #fff;
+			color: #5c5348;
+			border-color: #d4cfc6;
+		}
+
+		.screen-advisory-actions .btn-secondary:hover {
+			background: #f5f0e6;
 		}
 
 		.curator-body {
@@ -979,12 +1070,8 @@
 				<h1>Curator</h1>
 				<p class="tagline">Brown China Letters Collection</p>
 			</div>
-			<a href="story.html" target="site-content">← Back to home</a>
+			<a href="../index.html" id="curatorHomeLink">← Back to home</a>
 		</header>
-
-		<p class="desktop-notice">
-			<strong>Best on a larger screen.</strong> This collection is meant to be read with original scans alongside transcripts. For the fullest experience, use a desktop or laptop. A simplified small-screen version may come later.
-		</p>
 
 		<div class="curator-body">
 			<section class="conversation-col" aria-label="Conversation with the Curator">
@@ -1078,6 +1165,25 @@
 		</div>
 	</div>
 
+	<div id="screenAdvisoryBackdrop" class="screen-advisory-backdrop" hidden aria-hidden="true">
+		<div class="screen-advisory" role="dialog" aria-modal="true" aria-labelledby="screenAdvisoryTitle">
+			<div class="screen-advisory-header">
+				<h2 id="screenAdvisoryTitle">A larger screen is recommended</h2>
+				<p>Brown China Letters Collection</p>
+			</div>
+			<div class="screen-advisory-body">
+				<p>The Curator is designed for reading original letter scans alongside their transcripts — side by side, at a comfortable size.</p>
+				<p>On a smaller screen, those documents become difficult to read and the conversation can feel cramped. We want you to have the full experience this collection deserves.</p>
+				<p>For the best visit, we warmly encourage you to return on a desktop or laptop, or to rotate a tablet to landscape if you have one available.</p>
+				<p>You may continue here if you wish, but much of the richness of the letters may be hard to appreciate on this screen size.</p>
+			</div>
+			<div class="screen-advisory-actions">
+				<button type="button" class="btn-primary" id="screenAdvisoryDismiss">Continue on this screen</button>
+				<a href="../index.html" class="btn-secondary" id="screenAdvisoryHome">Return to home</a>
+			</div>
+		</div>
+	</div>
+
 	<div id="letterModalBackdrop" class="letter-modal-backdrop" hidden aria-hidden="true">
 		<div class="letter-modal" role="dialog" aria-modal="true" aria-labelledby="letterModalTitle">
 			<div class="letter-modal-header">
@@ -1147,12 +1253,17 @@
 			"<p>I'm simply here to help you discover them.</p>" +
 			"<p><strong>What would you like to explore today?</strong></p>";
 
+		var SESSION_KEY = "brownChinaCuratorSession";
+		var SCREEN_DISMISS_KEY = "brownChinaCuratorScreenDismissed";
+		var LARGE_SCREEN_MQ = window.matchMedia("(min-width: 992px)");
+
 		var state = {
 			openLetterId: null,
 			activeTab: "scan",
 			letterCache: {},
 			chatHistory: [],
 			isSending: false,
+			welcomeShown: false,
 		};
 
 		var conversationScroll = document.getElementById("conversationScroll");
@@ -1170,6 +1281,67 @@
 		var visitorInput = document.getElementById("visitorInput");
 		var curatorStatusHint = document.getElementById("curatorStatusHint");
 		var sendButton = curatorForm.querySelector(".input-group-send");
+		var curatorHomeLink = document.getElementById("curatorHomeLink");
+		var screenAdvisoryBackdrop = document.getElementById("screenAdvisoryBackdrop");
+		var screenAdvisoryDismiss = document.getElementById("screenAdvisoryDismiss");
+		var screenAdvisoryHome = document.getElementById("screenAdvisoryHome");
+
+		if (window.self !== window.top) {
+			curatorHomeLink.target = "_top";
+			screenAdvisoryHome.target = "_top";
+		}
+
+		function loadSession() {
+			try {
+				var raw = sessionStorage.getItem(SESSION_KEY);
+				if (!raw) return null;
+				var data = JSON.parse(raw);
+				if (!data || data.version !== 1) return null;
+				return data;
+			} catch (e) {
+				return null;
+			}
+		}
+
+		function saveSession() {
+			try {
+				sessionStorage.setItem(
+					SESSION_KEY,
+					JSON.stringify({
+						version: 1,
+						welcomeShown: state.welcomeShown,
+						chatHistory: state.chatHistory,
+						openLetterId: state.openLetterId,
+					})
+				);
+			} catch (e) {
+				/* quota or private mode — ignore */
+			}
+		}
+
+		function showScreenAdvisoryIfNeeded() {
+			if (LARGE_SCREEN_MQ.matches) return;
+			if (sessionStorage.getItem(SCREEN_DISMISS_KEY) === "1") return;
+			screenAdvisoryBackdrop.hidden = false;
+			screenAdvisoryBackdrop.setAttribute("aria-hidden", "false");
+			document.body.style.overflow = "hidden";
+			screenAdvisoryDismiss.focus();
+		}
+
+		function dismissScreenAdvisory() {
+			try {
+				sessionStorage.setItem(SCREEN_DISMISS_KEY, "1");
+			} catch (e) {}
+			screenAdvisoryBackdrop.hidden = true;
+			screenAdvisoryBackdrop.setAttribute("aria-hidden", "true");
+			document.body.style.overflow = "";
+		}
+
+		screenAdvisoryDismiss.addEventListener("click", dismissScreenAdvisory);
+
+		screenAdvisoryBackdrop.addEventListener("click", function (e) {
+			if (e.target === screenAdvisoryBackdrop) dismissScreenAdvisory();
+		});
 
 		function escapeHtml(s) {
 			return String(s)
@@ -1389,8 +1561,14 @@
 		});
 
 		document.addEventListener("keydown", function (e) {
-			if (e.key === "Escape" && !letterModalBackdrop.hidden) {
-				closeLetterModal();
+			if (e.key === "Escape") {
+				if (!screenAdvisoryBackdrop.hidden) {
+					dismissScreenAdvisory();
+					return;
+				}
+				if (!letterModalBackdrop.hidden) {
+					closeLetterModal();
+				}
 			}
 		});
 
@@ -1453,6 +1631,7 @@
 			state.openLetterId = letterId;
 			setUrlLetter(letterId);
 			highlightCitations(letterId);
+			saveSession();
 
 			letterEmpty.style.display = "none";
 			letterContent.classList.add("is-open");
@@ -1481,6 +1660,7 @@
 			letterEmpty.style.display = "";
 			openLetterBar.classList.remove("is-visible");
 			openLetterLabel.textContent = "—";
+			saveSession();
 		}
 
 		function buildCitationChip(citation) {
@@ -1529,8 +1709,47 @@
 			return row;
 		}
 
+		function appendCuratorReply(text, citations) {
+			var row = appendMessage("curator", formatCuratorReply(text));
+			var bubble = row.querySelector(".msg-bubble");
+			if (citations && citations.length) {
+				appendCitationsToBubble(bubble, citations);
+			}
+			return row;
+		}
+
+		function restoreConversationFromSession(saved) {
+			conversationScroll.innerHTML = "";
+			state.chatHistory = saved.chatHistory || [];
+			state.welcomeShown = !!saved.welcomeShown;
+
+			if (state.welcomeShown) {
+				appendMessage("curator", WELCOME_HTML);
+			}
+
+			state.chatHistory.forEach(function (turn) {
+				if (turn.role === "user") {
+					appendMessage("visitor", "<p>" + escapeHtml(turn.content) + "</p>");
+				} else if (turn.role === "assistant") {
+					appendCuratorReply(turn.content, turn.citations || []);
+				}
+			});
+
+			conversationScroll.scrollTop = conversationScroll.scrollHeight;
+		}
+
 		function initConversation() {
+			var saved = loadSession();
+			if (saved && (saved.welcomeShown || (saved.chatHistory && saved.chatHistory.length))) {
+				restoreConversationFromSession(saved);
+				if (saved.openLetterId && !params.get("letter")) {
+					openLetter(saved.openLetterId);
+				}
+				return;
+			}
+			state.welcomeShown = true;
 			appendMessage("curator", WELCOME_HTML);
+			saveSession();
 		}
 
 		function priorMessagesForApi() {
@@ -1567,15 +1786,25 @@
 					},
 					onFinal: function (payload) {
 						var reply = payload.reply || "";
+						var citations = payload.citations || [];
 						bubble.innerHTML = formatCuratorReply(reply);
-						appendCitationsToBubble(bubble, payload.citations || []);
+						appendCitationsToBubble(bubble, citations);
 						state.chatHistory.push({ role: "user", content: userText });
-						state.chatHistory.push({ role: "assistant", content: reply });
+						state.chatHistory.push({
+							role: "assistant",
+							content: reply,
+							citations: citations,
+						});
+						if (!state.welcomeShown) {
+							state.welcomeShown = true;
+						}
+						saveSession();
 					},
 					onEnd: function () {
 						setSending(false);
 						setStatusHint("");
 						conversationScroll.scrollTop = conversationScroll.scrollHeight;
+						saveSession();
 					},
 					onError: function (msg) {
 						setSending(false);
@@ -1610,6 +1839,7 @@
 			setStatusHint("Set apiBase in site-config.js or use ?apiBase= for local testing.", true);
 		}
 
+		showScreenAdvisoryIfNeeded();
 		initConversation();
 
 		var letterParam = params.get("letter");
