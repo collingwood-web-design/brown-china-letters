@@ -1643,6 +1643,12 @@
 
 			fetchLetter(letterId)
 				.then(function (letter) {
+					if (letter.letter_id && letter.letter_id !== letterId) {
+						state.openLetterId = letter.letter_id;
+						setUrlLetter(letter.letter_id);
+						highlightCitations(letterId);
+						highlightCitations(letter.letter_id);
+					}
 					renderLetterPanel(letter);
 				})
 				.catch(function (err) {
