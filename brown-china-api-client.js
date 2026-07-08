@@ -50,7 +50,7 @@
   }
 
   /**
-   * POST /chat with stream:false — returns parsed JSON { reply }.
+   * POST /chat with stream:false — returns parsed JSON { reply, citations }.
    */
   function postChatJson(apiBase, body) {
     var base = normalizeBase(apiBase);
@@ -78,12 +78,13 @@
 
   /**
    * POST /chat with stream:true — reads SSE and invokes handlers.
-   * handlers: { onDelta(text), onEnd(), onError(message) }
+   * handlers: { onDelta(text, fullSoFar), onFinal({ reply, citations }), onEnd(fullText), onError(message) }
    */
   function postChatStream(apiBase, body, handlers) {
     handlers = handlers || {};
     var base = normalizeBase(apiBase);
     var onDelta = handlers.onDelta || function () {};
+    var onFinal = handlers.onFinal || function () {};
     var onEnd = handlers.onEnd || function () {};
     var onError = handlers.onError || function () {};
 
@@ -115,6 +116,11 @@
         if (payload.type === "text.delta" && payload.delta) {
           assembled += payload.delta;
           onDelta(payload.delta, assembled);
+        } else if (payload.type === "final.json") {
+          if (payload.reply) {
+            assembled = payload.reply;
+          }
+          onFinal(payload);
         } else if (payload.type === "response.end") {
           onEnd(assembled);
         } else if (payload.type === "error") {
@@ -137,9 +143,29 @@
     });
   }
 
+  /**
+   * GET /letters/{letter_id} — metadata + transcript for the reading panel.
+   */
+  function getLetter(apiBase, letterId) {
+    var base = normalizeBase(apiBase);
+    return fetch(base + "/letters/" + encodeURIComponent(letterId)).then(function (res) {
+      return res.json().then(function (data) {
+        if (!res.ok) {
+          var err = new Error(
+            typeof data.detail === "string" ? data.detail : JSON.stringify(data)
+          );
+          err.status = res.status;
+          throw err;
+        }
+        return data;
+      });
+    });
+  }
+
   global.BrownChinaApi = {
     normalizeBase: normalizeBase,
     postChatJson: postChatJson,
     postChatStream: postChatStream,
+    getLetter: getLetter,
   };
 })(typeof window !== "undefined" ? window : this);

@@ -1,0 +1,1622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>Curator — Brown China Letters</title>
+	<link rel="stylesheet" href="../assets/css/main.css" />
+	<style>
+		/* UI mockup — desktop-first Curator + letter panel (SITE_REVISION_PLAN §3.5) */
+		html { font-size: 12pt; }
+
+		*, *::before, *::after { box-sizing: border-box; }
+
+		html, body.curator-page {
+			margin: 0;
+			padding: 0;
+			height: 100%;
+			min-height: 100%;
+			font-family: "Source Sans Pro", "Segoe UI", Calibri, Arial, sans-serif;
+			background: #ebe6df;
+			color: #1f2933;
+		}
+
+		.curator-app {
+			display: flex;
+			flex-direction: column;
+			height: 100%;
+			min-height: 100%;
+		}
+
+		.curator-topbar {
+			flex-shrink: 0;
+			display: flex;
+			align-items: flex-start;
+			justify-content: space-between;
+			gap: 1rem;
+			padding: 0.65rem 1.25rem;
+			background: #fff;
+			border-bottom: 1px solid #d4cfc6;
+		}
+
+		.curator-topbar h1 {
+			margin: 0 0 0.2rem;
+			font-size: 1.35rem;
+			font-weight: 600;
+			color: #2c2416;
+		}
+
+		.curator-topbar .tagline {
+			margin: 0;
+			font-size: 0.85rem;
+			color: #5c5348;
+		}
+
+		.curator-topbar a {
+			color: #9a6b35;
+			font-weight: 600;
+			text-decoration: none;
+			font-size: 0.9rem;
+			white-space: nowrap;
+		}
+
+		.curator-topbar a:hover { text-decoration: underline; }
+
+		.desktop-notice {
+			flex-shrink: 0;
+			padding: 0.45rem 1.25rem;
+			background: #f5f0e6;
+			border-bottom: 1px solid #e0d8c8;
+			font-size: 0.8rem;
+			color: #6b5d4a;
+			line-height: 1.4;
+		}
+
+		.curator-body {
+			flex: 1;
+			display: flex;
+			min-height: 0;
+			overflow: hidden;
+		}
+
+		/* —— Conversation column —— */
+		.conversation-col {
+			flex: 1 1 48%;
+			min-width: 280px;
+			display: flex;
+			flex-direction: column;
+			min-height: 0;
+			background: #f4f1ec;
+			border-right: 1px solid #d4cfc6;
+		}
+
+		.conversation-scroll {
+			flex: 1;
+			overflow-y: auto;
+			padding: 1rem 1.1rem;
+		}
+
+		.msg-row {
+			display: flex;
+			gap: 0.5rem;
+			margin-bottom: 1rem;
+			align-items: flex-start;
+		}
+
+		.msg-row.visitor { flex-direction: row-reverse; }
+
+		.msg-avatar {
+			flex-shrink: 0;
+			font-size: 0.62rem;
+			font-weight: 700;
+			padding: 0.35rem 0.45rem;
+			border-radius: 4px;
+			line-height: 1;
+		}
+
+		.msg-avatar.curator {
+			background: #3d5c4a;
+			color: #f0f7f2;
+		}
+
+		.msg-avatar.visitor {
+			background: #2c2416;
+			color: #faf8f5;
+		}
+
+		.msg-bubble {
+			flex: 1;
+			min-width: 0;
+			max-width: 100%;
+			padding: 0.75rem 0.9rem;
+			background: #fff;
+			border: 1px solid #e5dfd4;
+			border-radius: 6px;
+			font-size: 0.875rem;
+			line-height: 1.5;
+			color: #1f2937;
+			box-shadow: 0 1px 2px rgba(44, 36, 22, 0.05);
+		}
+
+		.msg-bubble p { margin: 0 0 0.65rem; }
+		.msg-bubble p:last-child { margin-bottom: 0; }
+		.msg-bubble blockquote {
+			margin: 0.5rem 0;
+			padding-left: 0.75rem;
+			border-left: 3px solid #c4a574;
+			color: #4a5568;
+			font-style: italic;
+		}
+
+		.msg-bubble ul {
+			margin: 0.5rem 0 0.65rem;
+			padding-left: 1.25rem;
+		}
+
+		.msg-bubble li { margin: 0.2rem 0; }
+
+		.citation-list {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 0.4rem;
+			margin-top: 0.65rem;
+		}
+
+		.citation-chip {
+			display: inline-flex;
+			align-items: center;
+			padding: 0.3rem 0.6rem;
+			background: #faf8f5;
+			border: 1px solid #c4a574;
+			border-left: 3px solid #9a6b35;
+			border-radius: 3px;
+			cursor: pointer;
+			font-family: inherit;
+			font-size: 0.72rem;
+			font-weight: 700;
+			text-transform: uppercase;
+			letter-spacing: 0.04em;
+			color: #7a5528;
+			line-height: 1.2;
+			white-space: nowrap;
+			transition: background 0.15s, border-color 0.15s;
+		}
+
+		.citation-chip:hover {
+			background: #f5f0e6;
+			border-color: #9a6b35;
+		}
+
+		.citation-chip.is-active {
+			background: #ede8dc;
+			border-color: #7a5528;
+			box-shadow: inset 0 0 0 1px #9a6b35;
+		}
+
+		.conversation-input {
+			flex-shrink: 0;
+			padding: 0.75rem 1rem;
+			border-top: 1px solid #d4cfc6;
+			background: #fff;
+		}
+
+		.open-letter-bar {
+			display: none;
+			align-items: center;
+			gap: 0.5rem;
+			padding: 0.4rem 0.65rem;
+			margin-bottom: 0.5rem;
+			background: #ede8dc;
+			border: 1px solid #c4a574;
+			border-radius: 4px;
+			font-size: 0.78rem;
+			color: #4a4034;
+		}
+
+		.open-letter-bar.is-visible { display: flex; }
+
+		.open-letter-bar strong { color: #2c2416; }
+
+		#curatorForm {
+			margin: 0;
+		}
+
+		.input-group {
+			display: flex;
+			align-items: stretch;
+			width: 100%;
+		}
+
+		.input-group textarea {
+			flex: 1;
+			min-width: 0;
+			resize: none;
+			min-height: 2.25rem;
+			max-height: 6rem;
+			padding: 0.5rem 0.65rem;
+			border: 1px solid #d4cfc6;
+			border-right: none;
+			border-radius: 4px 0 0 4px;
+			font-family: inherit;
+			font-size: 0.875rem;
+			line-height: 1.35;
+			background: #fff;
+		}
+
+		.input-group textarea:focus {
+			outline: none;
+			border-color: #9a6b35;
+			box-shadow: 0 0 0 2px rgba(154, 107, 53, 0.12);
+			position: relative;
+			z-index: 1;
+		}
+
+		.input-group-send {
+			flex-shrink: 0;
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			padding: 0 1rem;
+			min-height: 2.25rem;
+			background: #9a6b35;
+			color: #fff;
+			border: 1px solid #9a6b35;
+			border-radius: 0 4px 4px 0;
+			font-family: inherit;
+			font-weight: 600;
+			font-size: 0.85rem;
+			line-height: 1;
+			cursor: pointer;
+			white-space: nowrap;
+		}
+
+		.input-group-send:hover {
+			background: #7a5528;
+			border-color: #7a5528;
+		}
+
+		.input-group textarea:focus + .input-group-send {
+			border-color: #9a6b35;
+		}
+
+		.curator-status-hint {
+			margin: 0.35rem 0 0;
+			font-size: 0.7rem;
+			color: #8a7f72;
+			font-style: italic;
+		}
+
+		.curator-status-hint.is-error {
+			color: #b91c1c;
+			font-style: normal;
+		}
+
+		.msg-bubble.is-thinking,
+		.msg-bubble .is-thinking {
+			color: #8a7f72;
+			font-style: italic;
+		}
+
+		/* —— Letter panel —— */
+		.letter-col {
+			flex: 1 1 52%;
+			min-width: 320px;
+			display: flex;
+			flex-direction: column;
+			min-height: 0;
+			background: #faf8f5;
+		}
+
+		.letter-col-header {
+			flex-shrink: 0;
+			padding: 0.65rem 1rem;
+			border-bottom: 1px solid #e0d8c8;
+			background: #fff;
+		}
+
+		.letter-col-header h2 {
+			margin: 0;
+			font-size: 0.95rem;
+			font-weight: 600;
+			color: #5c5348;
+			text-transform: uppercase;
+			letter-spacing: 0.06em;
+		}
+
+		.letter-empty {
+			flex: 1;
+			display: flex;
+			flex-direction: column;
+			min-height: 0;
+			overflow-y: auto;
+			padding: 1.25rem 1.15rem 1.5rem;
+			background: linear-gradient(165deg, #faf8f5 0%, #f3efe8 100%);
+		}
+
+		.letter-placeholder {
+			flex: 1;
+			display: flex;
+			flex-direction: column;
+			min-height: 0;
+			max-width: 100%;
+		}
+
+		.letter-placeholder-intro {
+			text-align: center;
+			margin-bottom: 1.1rem;
+			padding: 0 0.5rem;
+		}
+
+		.letter-placeholder-intro h3 {
+			margin: 0 0 0.45rem;
+			font-size: 1.05rem;
+			font-weight: 600;
+			color: #3d3529;
+			font-family: Georgia, "Times New Roman", serif;
+		}
+
+		.letter-placeholder-intro p {
+			margin: 0;
+			font-size: 0.84rem;
+			line-height: 1.5;
+			color: #6b5d4a;
+			max-width: 26rem;
+			margin-left: auto;
+			margin-right: auto;
+		}
+
+		.letter-placeholder-steps {
+			list-style: none;
+			margin: 0 0 1.15rem;
+			padding: 0;
+			display: flex;
+			flex-direction: column;
+			gap: 0.45rem;
+		}
+
+		.letter-placeholder-steps li {
+			display: flex;
+			align-items: flex-start;
+			gap: 0.6rem;
+			font-size: 0.8rem;
+			line-height: 1.4;
+			color: #5c5348;
+			padding: 0.45rem 0.65rem;
+			background: rgba(255, 255, 255, 0.65);
+			border: 1px solid #e5dfd4;
+			border-radius: 4px;
+		}
+
+		.letter-placeholder-steps .step-num {
+			flex-shrink: 0;
+			width: 1.35rem;
+			height: 1.35rem;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			border-radius: 50%;
+			background: #ede8dc;
+			color: #7a5528;
+			font-size: 0.72rem;
+			font-weight: 700;
+		}
+
+		/* Ghost preview of plaque + split panes */
+		.letter-placeholder-preview {
+			flex: 1;
+			display: flex;
+			flex-direction: column;
+			min-height: 10rem;
+			border: 1px dashed #d4c4a8;
+			border-radius: 6px;
+			background: rgba(255, 255, 255, 0.45);
+			overflow: hidden;
+			opacity: 0.92;
+		}
+
+		.letter-placeholder-preview .ghost-plaque {
+			padding: 0.75rem 1rem;
+			border-bottom: 2px solid #e0d4c0;
+			background: linear-gradient(180deg, rgba(255,255,255,0.9) 0%, rgba(249,246,240,0.7) 100%);
+		}
+
+		.ghost-plaque .ghost-title {
+			height: 0.85rem;
+			width: 72%;
+			max-width: 14rem;
+			background: #ddd5c8;
+			border-radius: 2px;
+			margin-bottom: 0.5rem;
+		}
+
+		.ghost-plaque .ghost-meta {
+			display: flex;
+			gap: 0.75rem;
+			flex-wrap: wrap;
+		}
+
+		.ghost-plaque .ghost-line {
+			height: 0.55rem;
+			width: 4.5rem;
+			background: #e8e2d8;
+			border-radius: 2px;
+		}
+
+		.letter-placeholder-preview .ghost-split {
+			flex: 1;
+			display: flex;
+			min-height: 8rem;
+		}
+
+		.ghost-split .ghost-pane {
+			flex: 1;
+			padding: 0.85rem;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			text-align: center;
+			gap: 0.5rem;
+		}
+
+		.ghost-split .ghost-pane:first-child {
+			border-right: 1px dashed #e0d8c8;
+			background: rgba(250, 248, 245, 0.6);
+		}
+
+		.ghost-split .ghost-pane:last-child {
+			background: rgba(240, 237, 232, 0.6);
+		}
+
+		.ghost-pane-label {
+			font-size: 0.68rem;
+			font-weight: 700;
+			text-transform: uppercase;
+			letter-spacing: 0.08em;
+			color: #a89882;
+		}
+
+		.ghost-document {
+			width: 70%;
+			max-width: 7rem;
+			aspect-ratio: 8.5 / 11;
+			border: 1px solid #d4cfc6;
+			border-radius: 2px;
+			background: #fff;
+			box-shadow: 0 2px 6px rgba(44, 36, 22, 0.06);
+			position: relative;
+			overflow: hidden;
+		}
+
+		.ghost-document::before,
+		.ghost-document::after {
+			content: "";
+			position: absolute;
+			left: 12%;
+			right: 12%;
+			height: 2px;
+			background: #ebe6df;
+			border-radius: 1px;
+		}
+
+		.ghost-document::before { top: 18%; }
+		.ghost-document::after { top: 28%; width: 60%; }
+
+		.ghost-lines {
+			width: 85%;
+			display: flex;
+			flex-direction: column;
+			gap: 0.35rem;
+		}
+
+		.ghost-lines span {
+			display: block;
+			height: 3px;
+			background: #ebe6df;
+			border-radius: 1px;
+		}
+
+		.ghost-lines span:nth-child(odd) { width: 100%; }
+		.ghost-lines span:nth-child(even) { width: 88%; }
+		.ghost-lines span:last-child { width: 55%; }
+
+		.letter-placeholder-footer {
+			margin-top: 0.85rem;
+			text-align: center;
+			font-size: 0.75rem;
+			color: #9a8f7f;
+			font-style: italic;
+			line-height: 1.45;
+		}
+
+		.letter-placeholder-footer strong {
+			font-style: normal;
+			color: #7a5528;
+			font-weight: 600;
+		}
+
+		.letter-content {
+			display: none;
+			flex: 1;
+			flex-direction: column;
+			min-height: 0;
+			overflow: hidden;
+		}
+
+		.letter-content.is-open {
+			display: flex;
+		}
+
+		/* Museum plaque */
+		.letter-plaque {
+			flex-shrink: 0;
+			padding: 1rem 1.15rem;
+			background: linear-gradient(180deg, #fff 0%, #f9f6f0 100%);
+			border-bottom: 2px solid #c4a574;
+		}
+
+		.letter-plaque h3 {
+			margin: 0 0 0.5rem;
+			font-size: 1.15rem;
+			font-weight: 600;
+			color: #2c2416;
+			line-height: 1.3;
+		}
+
+		.plaque-meta {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 0.35rem 1rem;
+			font-size: 0.82rem;
+			color: #5c5348;
+			margin-bottom: 0.6rem;
+		}
+
+		.plaque-meta span strong {
+			color: #3d3529;
+			font-weight: 600;
+		}
+
+		.status-badge {
+			display: inline-block;
+			padding: 0.15rem 0.45rem;
+			border-radius: 3px;
+			font-size: 0.7rem;
+			font-weight: 700;
+			text-transform: uppercase;
+			letter-spacing: 0.03em;
+		}
+
+		.status-badge.complete {
+			background: #e8f0ea;
+			color: #2d5a3d;
+		}
+
+		.status-badge.partial {
+			background: #fef6e6;
+			color: #8a6d1b;
+		}
+
+		.status-badge.lost {
+			background: #f5ebe8;
+			color: #8b4513;
+		}
+
+		.topic-chips {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 0.35rem;
+			margin-top: 0.5rem;
+		}
+
+		.topic-chip {
+			font-size: 0.72rem;
+			padding: 0.2rem 0.5rem;
+			background: #ede8dc;
+			border-radius: 3px;
+			color: #5c5348;
+		}
+
+		.plaque-source {
+			margin: 0.5rem 0 0;
+			font-size: 0.72rem;
+			color: #8a7f72;
+		}
+
+		.plaque-actions {
+			margin-top: 0.5rem;
+			display: flex;
+			gap: 0.4rem;
+			flex-wrap: wrap;
+			align-items: center;
+		}
+
+		.plaque-actions .plaque-btn {
+			display: inline-flex;
+			align-items: center;
+			font-family: inherit;
+			font-size: 0.72rem;
+			font-weight: 600;
+			line-height: 1.2;
+			height: auto;
+			max-width: none;
+			padding: 0.28rem 0.55rem;
+			border: 1px solid #d4cfc6;
+			background: #fff;
+			border-radius: 3px;
+			box-shadow: none;
+			cursor: pointer;
+			color: #5c5348;
+			text-transform: none;
+			letter-spacing: normal;
+			white-space: nowrap;
+		}
+
+		.plaque-actions .plaque-btn:hover {
+			border-color: #9a6b35;
+			color: #7a5528;
+			background: #faf8f5;
+		}
+
+		/* Scan / transcript tabs */
+		.letter-view-tabs {
+			flex-shrink: 0;
+			display: flex;
+			border-bottom: 1px solid #e0d8c8;
+			background: #fff;
+		}
+
+		.letter-view-tabs button {
+			flex: 1;
+			padding: 0.55rem 0.75rem;
+			border: none;
+			background: transparent;
+			font-family: inherit;
+			font-size: 0.82rem;
+			font-weight: 600;
+			color: #8a7f72;
+			cursor: pointer;
+			border-bottom: 2px solid transparent;
+			margin-bottom: -1px;
+		}
+
+		.letter-view-tabs button.is-active {
+			color: #7a5528;
+			border-bottom-color: #9a6b35;
+			background: #faf8f5;
+		}
+
+		.letter-view-panes {
+			flex: 1;
+			min-height: 0;
+			overflow: hidden;
+			display: flex;
+			flex-direction: column;
+		}
+
+		.letter-pane {
+			display: none;
+			flex: 1;
+			min-height: 0;
+			overflow-y: auto;
+			padding: 1rem;
+		}
+
+		.letter-pane.is-active { display: block; }
+
+		.scan-pages {
+			display: flex;
+			flex-direction: column;
+			gap: 1rem;
+			align-items: center;
+		}
+
+		.scan-page-wrap {
+			width: 100%;
+			max-width: 520px;
+			background: #fff;
+			padding: 0.5rem;
+			border: 1px solid #e0d8c8;
+			box-shadow: 0 2px 8px rgba(44, 36, 22, 0.08);
+		}
+
+		.scan-page-wrap.is-clickable {
+			cursor: zoom-in;
+		}
+
+		.scan-page-wrap.is-clickable:hover {
+			border-color: #9a6b35;
+			box-shadow: 0 2px 12px rgba(154, 107, 53, 0.15);
+		}
+
+		.scan-page-wrap img {
+			display: block;
+			width: 100%;
+			height: auto;
+			background: #f0ede8;
+		}
+
+		.scan-page-wrap img.scan-load-failed {
+			min-height: 120px;
+			object-fit: contain;
+			padding: 1rem;
+		}
+
+		.scan-enlarge-hint {
+			font-size: 0.68rem;
+			color: #9a6b35;
+			text-align: center;
+			margin-top: 0.35rem;
+			font-weight: 600;
+		}
+
+		.scan-load-error {
+			font-size: 0.75rem;
+			color: #a94442;
+			text-align: center;
+			margin-top: 0.35rem;
+			line-height: 1.35;
+		}
+
+		.scan-page-label {
+			font-size: 0.72rem;
+			color: #8a7f72;
+			text-align: center;
+			margin-top: 0.35rem;
+		}
+
+		.transcript-panel-inner {
+			display: flex;
+			flex-direction: column;
+			min-height: 0;
+		}
+
+		.transcript-toolbar {
+			flex-shrink: 0;
+			margin-bottom: 0.5rem;
+		}
+
+		.transcript-expand-btn {
+			display: inline-flex;
+			align-items: center;
+			font-family: inherit;
+			font-size: 0.72rem;
+			font-weight: 600;
+			line-height: 1.2;
+			height: auto;
+			max-width: none;
+			padding: 0.28rem 0.55rem;
+			border: 1px solid #c4a574;
+			border-left: 3px solid #9a6b35;
+			background: #faf8f5;
+			border-radius: 3px;
+			box-shadow: none;
+			cursor: pointer;
+			color: #7a5528;
+			text-transform: none;
+			letter-spacing: normal;
+		}
+
+		.transcript-expand-btn:hover {
+			background: #f5f0e6;
+		}
+
+		.transcript-body {
+			max-width: 40rem;
+			margin: 0 auto;
+			padding: 1rem 1.25rem;
+			background: #fff;
+			border: 1px solid #e5dfd4;
+			box-shadow: 0 1px 3px rgba(44, 36, 22, 0.06);
+			font-family: Georgia, "Times New Roman", serif;
+			font-size: 0.92rem;
+			line-height: 1.65;
+			color: #1a1a1a;
+			white-space: pre-wrap;
+		}
+
+		/* Enlarged view modals */
+		.letter-modal-backdrop {
+			position: fixed;
+			inset: 0;
+			z-index: 10000;
+			background: rgba(44, 36, 22, 0.6);
+			display: flex;
+			align-items: flex-start;
+			justify-content: center;
+			padding: 3vh 0;
+			overflow-y: auto;
+		}
+
+		.letter-modal-backdrop[hidden] {
+			display: none !important;
+		}
+
+		.letter-modal {
+			width: 80%;
+			max-width: 52rem;
+			max-height: 90vh;
+			margin: 0 auto 3vh;
+			background: #faf8f5;
+			border-radius: 6px;
+			box-shadow: 0 12px 48px rgba(0, 0, 0, 0.28);
+			display: flex;
+			flex-direction: column;
+			overflow: hidden;
+		}
+
+		.letter-modal-header {
+			flex-shrink: 0;
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			gap: 0.75rem;
+			padding: 0.65rem 1rem;
+			border-bottom: 1px solid #e0d8c8;
+			background: #fff;
+		}
+
+		.letter-modal-header h4 {
+			margin: 0;
+			font-size: 0.9rem;
+			font-weight: 600;
+			color: #2c2416;
+			line-height: 1.35;
+		}
+
+		.letter-modal-close {
+			flex-shrink: 0;
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			width: 1.75rem;
+			height: 1.75rem;
+			max-width: none;
+			padding: 0;
+			border: 1px solid #d4cfc6;
+			border-radius: 3px;
+			background: #fff;
+			box-shadow: none;
+			font-family: inherit;
+			font-size: 1.15rem;
+			line-height: 1;
+			color: #5c5348;
+			cursor: pointer;
+			text-transform: none;
+			letter-spacing: normal;
+		}
+
+		.letter-modal-close:hover {
+			border-color: #9a6b35;
+			color: #7a5528;
+		}
+
+		.letter-modal-body {
+			flex: 1;
+			min-height: 0;
+			overflow-y: auto;
+			padding: 1rem 1.25rem 1.5rem;
+			-webkit-overflow-scrolling: touch;
+		}
+
+		.letter-modal-body--scan {
+			background: #f0ede8;
+			text-align: center;
+		}
+
+		.letter-modal-body--scan img {
+			display: block;
+			width: 100%;
+			height: auto;
+			margin: 0 auto;
+			background: #fff;
+			box-shadow: 0 2px 12px rgba(44, 36, 22, 0.12);
+		}
+
+		.letter-modal-body--transcript .transcript-body {
+			max-width: 42rem;
+			margin: 0 auto;
+			padding: 1.25rem 1.5rem;
+			font-size: 1.25rem;
+			line-height: 1.85;
+			border: none;
+			box-shadow: none;
+			background: #fff;
+			border-radius: 4px;
+		}
+
+		.split-view {
+			display: none;
+			flex: 1;
+			min-height: 0;
+			overflow: hidden;
+		}
+
+		.split-view.is-active {
+			display: flex;
+		}
+
+		.split-view .scan-col,
+		.split-view .transcript-col {
+			flex: 1;
+			min-width: 0;
+			overflow-y: auto;
+			padding: 0.75rem;
+		}
+
+		.split-view .transcript-col {
+			border-right: 1px solid #e0d8c8;
+			background: #faf8f5;
+		}
+
+		.split-view .scan-col {
+			background: #f0ede8;
+		}
+
+		@media (min-width: 720px) {
+			/* Side-by-side: transcript left, original scan right (matches transcript_first in corpus) */
+			.letter-view-tabs { display: none; }
+			.letter-pane { display: none !important; }
+			.split-view.is-active { display: flex; }
+		}
+
+		@media (max-width: 900px) {
+			.curator-body { flex-direction: column; }
+			.conversation-col {
+				flex: 1 1 auto;
+				max-height: 45%;
+				border-right: none;
+				border-bottom: 1px solid #d4cfc6;
+			}
+			.letter-col { flex: 1 1 auto; }
+		}
+	</style>
+</head>
+<body class="curator-page">
+	<div class="curator-app">
+		<header class="curator-topbar">
+			<div>
+				<h1>Curator</h1>
+				<p class="tagline">Brown China Letters Collection</p>
+			</div>
+			<a href="story.html" target="site-content">← Back to home</a>
+		</header>
+
+		<p class="desktop-notice">
+			<strong>Best on a larger screen.</strong> This collection is meant to be read with original scans alongside transcripts. For the fullest experience, use a desktop or laptop. A simplified small-screen version may come later.
+		</p>
+
+		<div class="curator-body">
+			<section class="conversation-col" aria-label="Conversation with the Curator">
+				<div class="conversation-scroll" id="conversationScroll">
+					<!-- Welcome + mock thread rendered by JS -->
+				</div>
+				<div class="conversation-input">
+					<div class="open-letter-bar" id="openLetterBar" aria-live="polite">
+						<span>Reading:</span>
+						<strong id="openLetterLabel">—</strong>
+						<span style="margin-left:auto;font-size:0.72rem;">Follow-up questions refer to this letter</span>
+					</div>
+					<form id="curatorForm">
+						<div class="input-group">
+							<textarea id="visitorInput" rows="1" placeholder="Ask the Curator…" aria-label="Your message to the Curator"></textarea>
+							<button type="submit" class="input-group-send">Send</button>
+						</div>
+					</form>
+					<p class="curator-status-hint" id="curatorStatusHint" aria-live="polite"></p>
+				</div>
+			</section>
+
+			<aside class="letter-col" aria-label="Letter view">
+				<div class="letter-col-header">
+					<h2>Letter</h2>
+				</div>
+				<div class="letter-empty" id="letterEmpty">
+					<div class="letter-placeholder">
+						<div class="letter-placeholder-intro">
+							<h3>No letter selected</h3>
+							<p>When the Curator cites a letter in the conversation, open it here to read the transcript alongside the original scan — without leaving your dialogue.</p>
+						</div>
+						<ol class="letter-placeholder-steps">
+							<li>
+								<span class="step-num" aria-hidden="true">1</span>
+								<span>Ask the Curator a question in the panel to the left.</span>
+							</li>
+							<li>
+								<span class="step-num" aria-hidden="true">2</span>
+								<span>Click a <strong>citation</strong> in the Curator’s reply.</span>
+							</li>
+							<li>
+								<span class="step-num" aria-hidden="true">3</span>
+								<span>Read the transcript and original here; keep talking while a letter stays open.</span>
+							</li>
+						</ol>
+						<div class="letter-placeholder-preview" aria-hidden="true">
+							<div class="ghost-plaque">
+								<div class="ghost-title"></div>
+								<div class="ghost-meta">
+									<div class="ghost-line"></div>
+									<div class="ghost-line"></div>
+									<div class="ghost-line"></div>
+								</div>
+							</div>
+							<div class="ghost-split">
+								<div class="ghost-pane">
+									<span class="ghost-pane-label">Transcript</span>
+									<div class="ghost-lines">
+										<span></span><span></span><span></span><span></span><span></span>
+									</div>
+								</div>
+								<div class="ghost-pane">
+									<span class="ghost-pane-label">Original scan</span>
+									<div class="ghost-document"></div>
+								</div>
+							</div>
+						</div>
+						<p class="letter-placeholder-footer">
+							The letters are the heart of the collection. <strong>Select a citation</strong> to begin.
+						</p>
+					</div>
+				</div>
+				<div class="letter-content" id="letterContent">
+					<div class="letter-plaque" id="letterPlaque"></div>
+					<div class="letter-view-tabs" role="tablist">
+						<button type="button" role="tab" class="is-active" data-tab="transcript">Transcript</button>
+						<button type="button" role="tab" data-tab="scan">Original</button>
+						<button type="button" role="tab" data-tab="both">Side by side</button>
+					</div>
+					<div class="letter-view-panes">
+						<div class="letter-pane" id="paneTranscript" data-pane="transcript"></div>
+						<div class="letter-pane" id="paneScan" data-pane="scan"></div>
+						<div class="split-view" id="paneBoth">
+							<div class="transcript-col" id="splitTranscript"></div>
+							<div class="scan-col" id="splitScan"></div>
+						</div>
+					</div>
+				</div>
+			</aside>
+		</div>
+	</div>
+
+	<div id="letterModalBackdrop" class="letter-modal-backdrop" hidden aria-hidden="true">
+		<div class="letter-modal" role="dialog" aria-modal="true" aria-labelledby="letterModalTitle">
+			<div class="letter-modal-header">
+				<h4 id="letterModalTitle">Letter</h4>
+				<button type="button" class="letter-modal-close" id="letterModalClose" aria-label="Close">×</button>
+			</div>
+			<div class="letter-modal-body" id="letterModalBody"></div>
+		</div>
+	</div>
+
+	<script src="../site-config.js"></script>
+	<script src="../brown-china-api-client.js"></script>
+	<script>
+	/*
+	 * Curator — live API (Railway) + CDN scans (cwd-cdn.com).
+	 *
+	 * Local dev: ?apiBase=http://127.0.0.1:8000&assets=/Original_Letters/
+	 * Manual test URL on Pages: .../pages/curator.html (not linked from site nav yet).
+	 */
+	(function () {
+		"use strict";
+
+		var params = new URLSearchParams(window.location.search);
+		var siteConfig = window.SiteConfig || {};
+		var isLocalHost =
+			window.location.hostname === "127.0.0.1" ||
+			window.location.hostname === "localhost";
+
+		var API_BASE = (params.get("apiBase") || siteConfig.apiBase || "").trim();
+		if (!API_BASE && isLocalHost) {
+			API_BASE = "http://127.0.0.1:8000";
+		}
+
+		var ASSET_ROOT = detectAssetRoot();
+
+		function detectAssetRoot() {
+			var override = params.get("assets");
+			if (override) {
+				return override.endsWith("/") ? override : override + "/";
+			}
+			if (siteConfig.assetBaseUrl) {
+				var base = String(siteConfig.assetBaseUrl).trim();
+				return base.endsWith("/") ? base : base + "/";
+			}
+			if (window.location.protocol !== "file:" && window.location.pathname.indexOf("/brown-china-letters-frontend/") !== -1) {
+				return "/Original_Letters/";
+			}
+			return "../../Original_Letters/";
+		}
+
+		var WELCOME_HTML =
+			"<p>Welcome to the Brown China Letters Collection.</p>" +
+			"<p>I'm the Curator of this collection, and I'm here to help you explore more than two thousand family letters written between Canada and West China during the early twentieth century.</p>" +
+			"<p>Whether you're interested in family history, missionary life, education, the history of China, or simply enjoy reading personal letters from another era, I'd be delighted to help you discover the collection.</p>" +
+			"<p>You can ask broad questions such as:</p>" +
+			"<ul>" +
+			"<li>What was daily life like in Chengtu?</li>" +
+			"<li>Tell me about Homer Brown.</li>" +
+			"<li>How did the family experience the First World War?</li>" +
+			"<li>What was education like in West China?</li>" +
+			"<li>Show me letters about Isabel.</li>" +
+			"<li>What were the biggest challenges the family faced?</li>" +
+			"</ul>" +
+			"<blockquote>\"Where should I begin?\"</blockquote>" +
+			"<p>Whenever possible, I'll guide you to the original letters so you can read the transcripts alongside the original handwritten or typewritten documents.</p>" +
+			"<p>The letters themselves are the heart of this collection.</p>" +
+			"<p>I'm simply here to help you discover them.</p>" +
+			"<p><strong>What would you like to explore today?</strong></p>";
+
+		var state = {
+			openLetterId: null,
+			activeTab: "scan",
+			letterCache: {},
+			chatHistory: [],
+			isSending: false,
+		};
+
+		var conversationScroll = document.getElementById("conversationScroll");
+		var letterEmpty = document.getElementById("letterEmpty");
+		var letterContent = document.getElementById("letterContent");
+		var letterPlaque = document.getElementById("letterPlaque");
+		var paneScan = document.getElementById("paneScan");
+		var paneTranscript = document.getElementById("paneTranscript");
+		var paneBoth = document.getElementById("paneBoth");
+		var splitScan = document.getElementById("splitScan");
+		var splitTranscript = document.getElementById("splitTranscript");
+		var openLetterBar = document.getElementById("openLetterBar");
+		var openLetterLabel = document.getElementById("openLetterLabel");
+		var curatorForm = document.getElementById("curatorForm");
+		var visitorInput = document.getElementById("visitorInput");
+		var curatorStatusHint = document.getElementById("curatorStatusHint");
+		var sendButton = curatorForm.querySelector(".input-group-send");
+
+		function escapeHtml(s) {
+			return String(s)
+				.replace(/&/g, "&amp;")
+				.replace(/</g, "&lt;")
+				.replace(/>/g, "&gt;")
+				.replace(/"/g, "&quot;");
+		}
+
+		function setStatusHint(text, isError) {
+			curatorStatusHint.textContent = text || "";
+			curatorStatusHint.classList.toggle("is-error", !!isError);
+		}
+
+		function setSending(sending) {
+			state.isSending = sending;
+			visitorInput.disabled = sending;
+			sendButton.disabled = sending;
+		}
+
+		function statusClass(status) {
+			if (status === "partial") return "partial";
+			if (status === "lost") return "lost";
+			return "complete";
+		}
+
+		function statusLabel(status) {
+			if (status === "partial") return "Partial letter";
+			if (status === "lost") return "Lost / fragment";
+			return "Complete letter";
+		}
+
+		function scanPageSummary(letter) {
+			var n = (letter.source_images || []).length;
+			if (n === 1) return "This letter is preserved as 1 scanned page from the archive.";
+			if (!n) return "No scan images are listed for this letter.";
+			return "This letter is preserved as " + n + " scanned pages from the archive.";
+		}
+
+		function imageUrl(relativePath) {
+			return ASSET_ROOT + relativePath.replace(/^\//, "");
+		}
+
+		function onScanImageError(img) {
+			img.classList.add("scan-load-failed");
+			img.src = "../images/placeholder.svg";
+			img.alt = "Scan could not be loaded";
+			var wrap = img.closest(".scan-page-wrap");
+			if (!wrap || wrap.querySelector(".scan-load-error")) return;
+			var err = document.createElement("p");
+			err.className = "scan-load-error";
+			err.textContent = "Could not load scan from " + ASSET_ROOT;
+			wrap.appendChild(err);
+		}
+
+		window.onScanImageError = onScanImageError;
+
+		function formatCuratorReply(text) {
+			if (!text) return '<p class="is-thinking">…</p>';
+			var paras = String(text).split(/\n\n+/).filter(function (p) {
+				return p.trim();
+			});
+			if (!paras.length) return "<p></p>";
+			return paras
+				.map(function (p) {
+					return "<p>" + escapeHtml(p.trim()) + "</p>";
+				})
+				.join("");
+		}
+
+		function fetchLetter(letterId) {
+			if (state.letterCache[letterId]) {
+				return Promise.resolve(state.letterCache[letterId]);
+			}
+			if (!API_BASE) {
+				return Promise.reject(new Error("API base URL is not configured."));
+			}
+			return BrownChinaApi.getLetter(API_BASE, letterId).then(function (data) {
+				state.letterCache[letterId] = data;
+				return data;
+			});
+		}
+
+		function buildScanHtml(letter) {
+			var total = (letter.source_images || []).length;
+			var html = '<div class="scan-pages">';
+			(letter.source_images || []).forEach(function (path, i) {
+				var pageIndex = i + 1;
+				var src = imageUrl(path);
+				html +=
+					'<div class="scan-page-wrap is-clickable" role="button" tabindex="0" data-page-index="' + i + '" title="Click to enlarge">' +
+					'<img class="scan-clickable" src="' + escapeHtml(src) + '" alt="Original letter scan, page ' + pageIndex + " of " + total + '" loading="lazy" decoding="async" onerror="onScanImageError(this)" />' +
+					'<div class="scan-page-label">Original scan — page ' + pageIndex + " of " + total + "</div>" +
+					'<div class="scan-enlarge-hint">Click to enlarge</div>' +
+					"</div>";
+			});
+			html += "</div>";
+			return html;
+		}
+
+		function buildTranscriptHtml(letter) {
+			var body = letter.transcript || "";
+			if (letter.archivist_notes) {
+				body += "\n\n---\n\nArchivist notes:\n" + letter.archivist_notes;
+			}
+			return (
+				'<div class="transcript-panel-inner">' +
+				'<div class="transcript-toolbar">' +
+				'<button type="button" class="transcript-expand-btn">Read larger</button>' +
+				"</div>" +
+				'<div class="transcript-body">' + escapeHtml(body) + "</div>" +
+				"</div>"
+			);
+		}
+
+		function buildPlaqueHtml(letter) {
+			var topics = (letter.topics || [])
+				.map(function (t) {
+					return '<span class="topic-chip">' + escapeHtml(t) + "</span>";
+				})
+				.join("");
+
+			return (
+				"<h3>" + escapeHtml(letter.title) + " — " + escapeHtml(letter.date_display) + "</h3>" +
+				'<div class="plaque-meta">' +
+				"<span><strong>Written at</strong> " + escapeHtml(letter.location || "—") + "</span>" +
+				"<span><strong>Format</strong> " + escapeHtml(letter.format || "—") + "</span>" +
+				'<span class="status-badge ' + statusClass(letter.letter_status) + '">' + statusLabel(letter.letter_status) + "</span>" +
+				"</div>" +
+				'<div class="plaque-meta">' +
+				"<span><strong>From</strong> " + escapeHtml(letter.author) + "</span>" +
+				"<span><strong>To</strong> " + escapeHtml(letter.recipient) + "</span>" +
+				"</div>" +
+				'<div class="topic-chips">' + topics + "</div>" +
+				'<p class="plaque-source">' + escapeHtml(scanPageSummary(letter)) + "</p>" +
+				'<div class="plaque-actions">' +
+				'<button type="button" class="plaque-btn" id="copyLetterLink">Copy bookmark link</button>' +
+				'<button type="button" class="plaque-btn" id="closeLetterBtn">Close letter</button>' +
+				"</div>"
+			);
+		}
+
+		var letterModalBackdrop = document.getElementById("letterModalBackdrop");
+		var letterModalTitle = document.getElementById("letterModalTitle");
+		var letterModalBody = document.getElementById("letterModalBody");
+		var letterModalClose = document.getElementById("letterModalClose");
+
+		function openLetterModal(title, bodyHtml, mode) {
+			letterModalTitle.textContent = title;
+			letterModalBody.className = "letter-modal-body letter-modal-body--" + mode;
+			letterModalBody.innerHTML = bodyHtml;
+			letterModalBackdrop.hidden = false;
+			letterModalBackdrop.setAttribute("aria-hidden", "false");
+			document.body.style.overflow = "hidden";
+			letterModalClose.focus();
+		}
+
+		function closeLetterModal() {
+			letterModalBackdrop.hidden = true;
+			letterModalBackdrop.setAttribute("aria-hidden", "true");
+			letterModalBody.innerHTML = "";
+			document.body.style.overflow = "";
+		}
+
+		function getOpenLetter() {
+			return state.openLetterId ? state.letterCache[state.openLetterId] : null;
+		}
+
+		function openScanModal(letter, pageIndex) {
+			var i = pageIndex || 0;
+			var total = (letter.source_images || []).length;
+			var src = imageUrl(letter.source_images[i]);
+			var title = "Original scan — page " + (i + 1) + " of " + total;
+			var body = '<img src="' + escapeHtml(src) + '" alt="' + escapeHtml(title) + '" />';
+			openLetterModal(title, body, "scan");
+		}
+
+		function openTranscriptModal(letter) {
+			var title = letter.title + " — transcript";
+			var body = '<div class="transcript-body">' + escapeHtml(letter.transcript || "") + "</div>";
+			openLetterModal(title, body, "transcript");
+		}
+
+		function handleScanActivate(wrap) {
+			var letter = getOpenLetter();
+			if (!letter || !wrap) return;
+			var idx = parseInt(wrap.getAttribute("data-page-index"), 10);
+			if (isNaN(idx)) idx = 0;
+			openScanModal(letter, idx);
+		}
+
+		letterContent.addEventListener("click", function (e) {
+			var wrap = e.target.closest(".scan-page-wrap.is-clickable");
+			if (wrap && letterContent.contains(wrap)) {
+				handleScanActivate(wrap);
+				return;
+			}
+			if (e.target.closest(".transcript-expand-btn")) {
+				var letter = getOpenLetter();
+				if (letter) openTranscriptModal(letter);
+			}
+		});
+
+		letterContent.addEventListener("keydown", function (e) {
+			if (e.key !== "Enter" && e.key !== " ") return;
+			var wrap = e.target.closest(".scan-page-wrap.is-clickable");
+			if (wrap && letterContent.contains(wrap)) {
+				e.preventDefault();
+				handleScanActivate(wrap);
+			}
+		});
+
+		letterModalClose.addEventListener("click", closeLetterModal);
+
+		letterModalBackdrop.addEventListener("click", function (e) {
+			if (e.target === letterModalBackdrop) closeLetterModal();
+		});
+
+		document.addEventListener("keydown", function (e) {
+			if (e.key === "Escape" && !letterModalBackdrop.hidden) {
+				closeLetterModal();
+			}
+		});
+
+		function setUrlLetter(letterId) {
+			var url = new URL(window.location.href);
+			if (letterId) {
+				url.searchParams.set("letter", letterId);
+			} else {
+				url.searchParams.delete("letter");
+			}
+			window.history.replaceState({}, "", url);
+		}
+
+		function highlightCitations(letterId) {
+			document.querySelectorAll(".citation-chip").forEach(function (btn) {
+				btn.classList.toggle("is-active", btn.getAttribute("data-letter-id") === letterId);
+			});
+		}
+
+		function setActiveTab(tab) {
+			state.activeTab = tab;
+			document.querySelectorAll(".letter-view-tabs button").forEach(function (btn) {
+				btn.classList.toggle("is-active", btn.getAttribute("data-tab") === tab);
+			});
+			paneScan.classList.toggle("is-active", tab === "scan");
+			paneTranscript.classList.toggle("is-active", tab === "transcript");
+			paneBoth.classList.toggle("is-active", tab === "both");
+		}
+
+		function renderLetterPanel(letter) {
+			letterPlaque.innerHTML = buildPlaqueHtml(letter);
+			var scanHtml = buildScanHtml(letter);
+			var transcriptHtml = buildTranscriptHtml(letter);
+
+			paneScan.innerHTML = scanHtml;
+			paneTranscript.innerHTML = transcriptHtml;
+			splitScan.innerHTML = scanHtml;
+			splitTranscript.innerHTML = transcriptHtml;
+
+			openLetterBar.classList.add("is-visible");
+			openLetterLabel.textContent = letter.title + " (" + letter.date_display + ")";
+
+			document.getElementById("copyLetterLink").addEventListener("click", function () {
+				var link = window.location.href.split("#")[0];
+				if (navigator.clipboard && navigator.clipboard.writeText) {
+					navigator.clipboard.writeText(link);
+				}
+			});
+
+			document.getElementById("closeLetterBtn").addEventListener("click", closeLetter);
+
+			if (window.matchMedia("(min-width: 720px)").matches) {
+				setActiveTab("both");
+			} else {
+				setActiveTab("transcript");
+			}
+		}
+
+		function openLetter(letterId) {
+			state.openLetterId = letterId;
+			setUrlLetter(letterId);
+			highlightCitations(letterId);
+
+			letterEmpty.style.display = "none";
+			letterContent.classList.add("is-open");
+			letterPlaque.innerHTML = "<p>Loading letter…</p>";
+			paneScan.innerHTML = "";
+			paneTranscript.innerHTML = "";
+			splitScan.innerHTML = "";
+			splitTranscript.innerHTML = "";
+
+			fetchLetter(letterId)
+				.then(function (letter) {
+					renderLetterPanel(letter);
+				})
+				.catch(function (err) {
+					letterPlaque.innerHTML =
+						"<p><strong>Could not load this letter.</strong> " + escapeHtml(err.message || String(err)) + "</p>";
+					setStatusHint("Letter panel error — check API connection.", true);
+				});
+		}
+
+		function closeLetter() {
+			state.openLetterId = null;
+			setUrlLetter(null);
+			highlightCitations(null);
+			letterContent.classList.remove("is-open");
+			letterEmpty.style.display = "";
+			openLetterBar.classList.remove("is-visible");
+			openLetterLabel.textContent = "—";
+		}
+
+		function buildCitationChip(citation) {
+			var btn = document.createElement("button");
+			btn.type = "button";
+			btn.className = "citation-chip";
+			btn.setAttribute("data-letter-id", citation.letter_id);
+			var label = citation.date_display || citation.letter_id;
+			var title =
+				(citation.author || "Unknown") +
+				" to " +
+				(citation.recipient || "Unknown");
+			btn.setAttribute("title", title);
+			btn.textContent = label;
+			btn.addEventListener("click", function () {
+				openLetter(citation.letter_id);
+			});
+			return btn;
+		}
+
+		function appendCitationsToBubble(bubble, citations) {
+			if (!citations || !citations.length) return;
+			var existing = bubble.querySelector(".citation-list");
+			if (existing) existing.remove();
+			var list = document.createElement("div");
+			list.className = "citation-list";
+			citations.forEach(function (citation) {
+				list.appendChild(buildCitationChip(citation));
+			});
+			bubble.appendChild(list);
+			if (state.openLetterId) {
+				highlightCitations(state.openLetterId);
+			}
+		}
+
+		function appendMessage(role, html) {
+			var row = document.createElement("div");
+			row.className = "msg-row" + (role === "visitor" ? " visitor" : "");
+			var avatarLabel = role === "visitor" ? "You" : "Curator";
+			var avatarClass = role === "visitor" ? "visitor" : "curator";
+			row.innerHTML =
+				'<span class="msg-avatar ' + avatarClass + '">' + avatarLabel + "</span>" +
+				'<div class="msg-bubble">' + html + "</div>";
+			conversationScroll.appendChild(row);
+			conversationScroll.scrollTop = conversationScroll.scrollHeight;
+			return row;
+		}
+
+		function initConversation() {
+			appendMessage("curator", WELCOME_HTML);
+		}
+
+		function priorMessagesForApi() {
+			return state.chatHistory.map(function (turn) {
+				return { role: turn.role, content: turn.content };
+			});
+		}
+
+		function sendToCurator(userText) {
+			if (!API_BASE) {
+				setStatusHint("API base URL is not configured.", true);
+				return;
+			}
+
+			var prior = priorMessagesForApi();
+			var replyRow = appendMessage("curator", '<p class="is-thinking">…</p>');
+			var bubble = replyRow.querySelector(".msg-bubble");
+			setSending(true);
+			setStatusHint("Curator is thinking…");
+
+			BrownChinaApi.postChatStream(
+				API_BASE,
+				{
+					agent: "curator",
+					message: userText,
+					messages: prior,
+					open_letter_id: state.openLetterId || null,
+					stream: true,
+				},
+				{
+					onDelta: function (_chunk, fullSoFar) {
+						bubble.innerHTML = formatCuratorReply(fullSoFar);
+						conversationScroll.scrollTop = conversationScroll.scrollHeight;
+					},
+					onFinal: function (payload) {
+						var reply = payload.reply || "";
+						bubble.innerHTML = formatCuratorReply(reply);
+						appendCitationsToBubble(bubble, payload.citations || []);
+						state.chatHistory.push({ role: "user", content: userText });
+						state.chatHistory.push({ role: "assistant", content: reply });
+					},
+					onEnd: function () {
+						setSending(false);
+						setStatusHint("");
+						conversationScroll.scrollTop = conversationScroll.scrollHeight;
+					},
+					onError: function (msg) {
+						setSending(false);
+						bubble.innerHTML =
+							"<p><strong>Something went wrong.</strong> " + escapeHtml(msg) + "</p>";
+						setStatusHint("Could not reach the Curator service.", true);
+					},
+				}
+			).catch(function () {
+				/* onError handler already updated UI */
+			});
+		}
+
+		document.querySelectorAll(".letter-view-tabs button").forEach(function (btn) {
+			btn.addEventListener("click", function () {
+				setActiveTab(btn.getAttribute("data-tab"));
+			});
+		});
+
+		curatorForm.addEventListener("submit", function (e) {
+			e.preventDefault();
+			if (state.isSending) return;
+			var text = visitorInput.value.trim();
+			if (!text) return;
+
+			appendMessage("visitor", "<p>" + escapeHtml(text) + "</p>");
+			visitorInput.value = "";
+			sendToCurator(text);
+		});
+
+		if (!API_BASE) {
+			setStatusHint("Set apiBase in site-config.js or use ?apiBase= for local testing.", true);
+		}
+
+		initConversation();
+
+		var letterParam = params.get("letter");
+		if (letterParam) {
+			openLetter(letterParam);
+		}
+	})();
+	</script>
+</body>
+</html>
