@@ -6,7 +6,7 @@
   "use strict";
 
   global.SiteConfig = {
-    apiBase: "https://brown-china-fastapi-production.up.railway.app",
+    apiBase: "https://web-production-7ed4a.up.railway.app",
     assetBaseUrl: "https://cwd-cdn.com/",
   };
 })(typeof window !== "undefined" ? window : this);
