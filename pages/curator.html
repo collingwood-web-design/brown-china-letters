@@ -246,6 +246,37 @@
 
 		.msg-bubble li { margin: 0.2rem 0; }
 
+		.msg-bubble .msg-md h3 {
+			margin: 0.85rem 0 0.4rem;
+			font-size: 0.95rem;
+			font-weight: 600;
+			color: #2c2416;
+			line-height: 1.35;
+		}
+
+		.msg-bubble .msg-md h3:first-child { margin-top: 0; }
+
+		.msg-bubble .msg-md h4 {
+			margin: 0.75rem 0 0.35rem;
+			font-size: 0.9rem;
+			font-weight: 600;
+			color: #3d362c;
+		}
+
+		.msg-bubble .msg-md strong { font-weight: 600; color: #1f2937; }
+
+		.msg-bubble .msg-md em { font-style: italic; }
+
+		.msg-bubble .msg-md ol {
+			margin: 0.5rem 0 0.65rem;
+			padding-left: 1.35rem;
+		}
+
+		.msg-bubble .msg-md ul {
+			margin: 0.5rem 0 0.65rem;
+			padding-left: 1.25rem;
+		}
+
 		.citation-list {
 			display: flex;
 			flex-wrap: wrap;
@@ -1194,6 +1225,8 @@
 		</div>
 	</div>
 
+	<script src="https://cdn.jsdelivr.net/npm/marked@11.2.0/marked.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/dompurify@3.2.2/dist/purify.min.js"></script>
 	<script src="../site-config.js"></script>
 	<script src="../brown-china-api-client.js"></script>
 	<script>
@@ -1399,17 +1432,27 @@
 
 		window.onScanImageError = onScanImageError;
 
-		function formatCuratorReply(text) {
-			if (!text) return '<p class="is-thinking">…</p>';
-			var paras = String(text).split(/\n\n+/).filter(function (p) {
-				return p.trim();
-			});
-			if (!paras.length) return "<p></p>";
-			return paras
-				.map(function (p) {
-					return "<p>" + escapeHtml(p.trim()) + "</p>";
-				})
-				.join("");
+		if (window.marked && typeof window.marked.setOptions === "function") {
+			window.marked.setOptions({ gfm: true, breaks: true });
+		}
+
+		function renderCuratorMarkdown(md) {
+			var raw = md || "";
+			if (!raw.trim()) {
+				return '<p class="is-thinking">…</p>';
+			}
+			if (!window.marked || !window.marked.parse || !window.DOMPurify) {
+				return "<p>" + escapeHtml(raw) + "</p>";
+			}
+			try {
+				return (
+					'<div class="msg-md">' +
+					window.DOMPurify.sanitize(window.marked.parse(raw)) +
+					"</div>"
+				);
+			} catch (e) {
+				return "<p>" + escapeHtml(raw) + "</p>";
+			}
 		}
 
 		function fetchLetter(letterId) {
@@ -1716,7 +1759,7 @@
 		}
 
 		function appendCuratorReply(text, citations) {
-			var row = appendMessage("curator", formatCuratorReply(text));
+			var row = appendMessage("curator", renderCuratorMarkdown(text));
 			var bubble = row.querySelector(".msg-bubble");
 			if (citations && citations.length) {
 				appendCitationsToBubble(bubble, citations);
@@ -1787,13 +1830,13 @@
 				},
 				{
 					onDelta: function (_chunk, fullSoFar) {
-						bubble.innerHTML = formatCuratorReply(fullSoFar);
+						bubble.innerHTML = renderCuratorMarkdown(fullSoFar);
 						conversationScroll.scrollTop = conversationScroll.scrollHeight;
 					},
 					onFinal: function (payload) {
 						var reply = payload.reply || "";
 						var citations = payload.citations || [];
-						bubble.innerHTML = formatCuratorReply(reply);
+						bubble.innerHTML = renderCuratorMarkdown(reply);
 						appendCitationsToBubble(bubble, citations);
 						state.chatHistory.push({ role: "user", content: userText });
 						state.chatHistory.push({
