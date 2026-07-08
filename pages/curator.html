@@ -1939,6 +1939,13 @@
 			});
 		});
 
+		visitorInput.addEventListener("keydown", function (e) {
+			if (e.key === "Enter" && !e.shiftKey) {
+				e.preventDefault();
+				curatorForm.requestSubmit();
+			}
+		});
+
 		curatorForm.addEventListener("submit", function (e) {
 			e.preventDefault();
 			if (state.isSending) return;
