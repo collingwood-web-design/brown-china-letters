@@ -133,17 +133,31 @@
 
 		.screen-advisory-actions .btn-primary,
 		.screen-advisory-actions .btn-secondary {
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
 			flex: 1 1 auto;
 			min-width: 8rem;
-			padding: 0.55rem 1rem;
+			min-height: 2.65rem;
+			height: auto;
+			max-width: none;
+			padding: 0.6rem 1rem;
 			font-size: 0.88rem;
 			font-weight: 600;
+			line-height: 1.25;
 			border-radius: 4px;
 			cursor: pointer;
 			text-align: center;
 			text-decoration: none;
+			text-transform: none;
+			letter-spacing: normal;
+			white-space: normal;
 			border: 1px solid transparent;
 			font-family: inherit;
+			box-sizing: border-box;
+			vertical-align: middle;
+			overflow: visible;
+			text-overflow: clip;
 		}
 
 		.screen-advisory-actions .btn-primary {
@@ -1100,6 +1114,14 @@
 	</style>
 </head>
 <body class="curator-page">
+	<script>
+		/* Curator uses full viewport — leave the index.html video split shell when linked from home. */
+		(function () {
+			if (window.self !== window.top) {
+				window.top.location.replace(window.location.href);
+			}
+		})();
+	</script>
 	<div class="curator-app">
 		<header class="curator-topbar">
 			<div>
@@ -1358,7 +1380,13 @@
 		}
 
 		function showScreenAdvisoryIfNeeded() {
-			if (LARGE_SCREEN_MQ.matches) return;
+			var mq = LARGE_SCREEN_MQ;
+			try {
+				if (window.top && window.top.matchMedia) {
+					mq = window.top.matchMedia("(min-width: 992px)");
+				}
+			} catch (e) {}
+			if (mq.matches) return;
 			if (sessionStorage.getItem(SCREEN_DISMISS_KEY) === "1") return;
 			screenAdvisoryBackdrop.hidden = false;
 			screenAdvisoryBackdrop.setAttribute("aria-hidden", "false");
