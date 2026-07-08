@@ -299,8 +299,10 @@
 			text-transform: uppercase;
 			letter-spacing: 0.04em;
 			color: #7a5528;
-			line-height: 1.2;
-			white-space: nowrap;
+			line-height: 1.25;
+			max-width: 14rem;
+			white-space: normal;
+			text-align: left;
 			transition: background 0.15s, border-color 0.15s;
 		}
 
@@ -1671,6 +1673,7 @@
 		}
 
 		function openLetter(letterId) {
+			letterId = normalizeLetterRef(letterId);
 			state.openLetterId = letterId;
 			setUrlLetter(letterId);
 			highlightCitations(letterId);
@@ -1712,12 +1715,48 @@
 			saveSession();
 		}
 
+		function normalizeLetterRef(ref) {
+			var value = String(ref || "").trim().replace(/\\/g, "/");
+			if (value.indexOf("/") !== -1) {
+				value = value.split("/").pop();
+			}
+			if (/\.md$/i.test(value)) {
+				value = value.slice(0, -3);
+			}
+			return value.toLowerCase();
+		}
+
+		function citationChipLabel(citation) {
+			if (citation.chip_label) {
+				return citation.chip_label;
+			}
+			if (citation.date_display) {
+				return citation.date_display;
+			}
+			var normalized = normalizeLetterRef(citation.letter_id);
+			var match = /^(\d{4}-\d{2}-\d{2})_(.+)_to_(.+)$/.exec(normalized);
+			if (match) {
+				var parts = match[1].split("-");
+				var months = [
+					"January", "February", "March", "April", "May", "June",
+					"July", "August", "September", "October", "November", "December",
+				];
+				var day = parseInt(parts[2], 10);
+				var month = months[parseInt(parts[1], 10) - 1] || parts[1];
+				var author = match[2].replace(/_/g, " ");
+				var recipient = match[3].replace(/_/g, " ");
+				return day + " " + month + " " + parts[0] + " — " + author + " to " + recipient;
+			}
+			return normalized.replace(/_/g, " ");
+		}
+
 		function buildCitationChip(citation) {
 			var btn = document.createElement("button");
 			btn.type = "button";
 			btn.className = "citation-chip";
-			btn.setAttribute("data-letter-id", citation.letter_id);
-			var label = citation.date_display || citation.letter_id;
+			var letterId = normalizeLetterRef(citation.letter_id);
+			btn.setAttribute("data-letter-id", letterId);
+			var label = citationChipLabel(citation);
 			var title =
 				(citation.author || "Unknown") +
 				" to " +
@@ -1725,7 +1764,7 @@
 			btn.setAttribute("title", title);
 			btn.textContent = label;
 			btn.addEventListener("click", function () {
-				openLetter(citation.letter_id);
+				openLetter(letterId);
 			});
 			return btn;
 		}
