@@ -1726,6 +1726,38 @@
 			return value.toLowerCase();
 		}
 
+		function expandLetterRefCandidates(ref) {
+			var normalized = normalizeLetterRef(ref);
+			var candidates = [];
+			var seen = {};
+			function add(v) {
+				if (v && !seen[v]) {
+					seen[v] = true;
+					candidates.push(v);
+				}
+			}
+			add(normalized);
+			var hybrid = /^(\d{4}-\d{2}-\d{2})[-_](.+)$/.exec(normalized);
+			if (hybrid) {
+				add(hybrid[1] + "-" + hybrid[2]);
+				add(hybrid[1] + "_" + hybrid[2]);
+			}
+			add(normalized.replace(/_/g, "-"));
+			return candidates;
+		}
+
+		function formatIsoDateLabel(iso) {
+			var parts = iso.split("-");
+			if (parts.length !== 3) return iso;
+			var months = [
+				"January", "February", "March", "April", "May", "June",
+				"July", "August", "September", "October", "November", "December",
+			];
+			var day = parseInt(parts[2], 10);
+			var month = months[parseInt(parts[1], 10) - 1] || parts[1];
+			return day + " " + month + " " + parts[0];
+		}
+
 		function citationChipLabel(citation) {
 			if (citation.chip_label) {
 				return citation.chip_label;
@@ -1734,20 +1766,15 @@
 				return citation.date_display;
 			}
 			var normalized = normalizeLetterRef(citation.letter_id);
-			var match = /^(\d{4}-\d{2}-\d{2})_(.+)_to_(.+)$/.exec(normalized);
-			if (match) {
-				var parts = match[1].split("-");
-				var months = [
-					"January", "February", "March", "April", "May", "June",
-					"July", "August", "September", "October", "November", "December",
-				];
-				var day = parseInt(parts[2], 10);
-				var month = months[parseInt(parts[1], 10) - 1] || parts[1];
-				var author = match[2].replace(/_/g, " ");
-				var recipient = match[3].replace(/_/g, " ");
-				return day + " " + month + " " + parts[0] + " — " + author + " to " + recipient;
+			var stemMatch = /^(\d{4}-\d{2}-\d{2})_(.+)_to_(.+)$/.exec(normalized);
+			if (stemMatch) {
+				return formatIsoDateLabel(stemMatch[1]);
 			}
-			return normalized.replace(/_/g, " ");
+			var hybrid = /^(\d{4}-\d{2}-\d{2})[-_](.+)$/.exec(normalized);
+			if (hybrid) {
+				return formatIsoDateLabel(hybrid[1]);
+			}
+			return normalized.replace(/_/g, " ").replace(/-/g, " ");
 		}
 
 		function buildCitationChip(citation) {
