@@ -12,6 +12,117 @@
 			/* Keep type scale stable when iframe width changes */
 			html { font-size: 12pt; }
 
+			.story-intro {
+				margin-bottom: 1.35rem;
+			}
+
+			.story-intro h1 {
+				margin-bottom: 0.55rem;
+			}
+
+			.collection-snapshot {
+				margin: 0 0 1.5rem;
+				padding: 0.95rem 1.1rem 1.05rem;
+				border-left: 3px solid #9a6b35;
+				background: rgba(154, 107, 53, 0.06);
+			}
+
+			.collection-snapshot h2 {
+				margin: 0 0 0.55rem;
+				font-size: 0.95rem;
+				font-weight: 700;
+				letter-spacing: 0.04em;
+				text-transform: uppercase;
+				color: #5c5348;
+			}
+
+			.collection-snapshot-facts {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 0.85rem 1.5rem;
+				margin: 0 0 0.65rem;
+				padding: 0;
+				list-style: none;
+			}
+
+			.collection-snapshot-facts li {
+				margin: 0;
+				padding: 0;
+				min-width: 7.5rem;
+			}
+
+			.collection-snapshot-facts .fact-value {
+				display: block;
+				font-size: 1.35rem;
+				font-weight: 700;
+				line-height: 1.15;
+				color: #2c2416;
+			}
+
+			.collection-snapshot-facts .fact-label {
+				display: block;
+				margin-top: 0.2rem;
+				font-size: 0.8rem;
+				line-height: 1.35;
+				color: #5c5348;
+			}
+
+			.collection-snapshot p {
+				margin: 0;
+				font-size: 0.9rem;
+				line-height: 1.5;
+				color: #5c5348;
+			}
+
+			.curator-entry {
+				margin: 0 0 1.75rem;
+				padding-bottom: 1.5rem;
+				border-bottom: 1px solid #d4cfc6;
+			}
+
+			.curator-entry .button.primary {
+				width: auto;
+				max-width: 100%;
+				min-width: 18rem;
+				height: auto;
+				min-height: 3.25rem;
+				padding: 0.85rem 1.75rem;
+				line-height: 1.25;
+				font-size: 0.95rem;
+				font-weight: 700;
+				letter-spacing: 0.08em;
+				border-radius: 4px;
+				white-space: normal;
+			}
+
+			.curator-entry-helper {
+				margin: 0 0 0.85rem;
+				max-width: 38rem;
+				font-size: 0.95rem;
+				line-height: 1.55;
+				color: #3d3830;
+			}
+
+			.story-secondary {
+				margin: 0;
+			}
+
+			.story-secondary h2 {
+				margin: 0 0 0.35rem;
+				font-size: 0.85rem;
+				font-weight: 700;
+				letter-spacing: 0.04em;
+				text-transform: uppercase;
+				color: #8a8278;
+			}
+
+			.story-secondary-lead {
+				margin: 0 0 0.85rem;
+				font-size: 0.85rem;
+				line-height: 1.45;
+				color: #8a8278;
+			}
+
 			/*
 				Default stacked nav is max-width 22rem (main.css), which also squeezes helper copy.
 				Full-width list so helpers match .major; buttons stay the former column width (22rem).
@@ -22,21 +133,21 @@
 			}
 
 			body.content-page .actions.stacked.story-nav-actions li > .button {
-				width: 22rem;
+				width: 18rem;
 				max-width: 100%;
 				box-sizing: border-box;
+				opacity: 0.92;
 			}
 
-			/* Tighter than global stacked li (1.3rem top) — helper + next button felt too far apart */
 			body.content-page .actions.stacked.story-nav-actions li:not(:first-child) {
-				padding-top: 0.55rem;
+				padding-top: 0.45rem;
 			}
 
 			.story-nav-helper {
-				margin: 0.35rem 0 0.45rem;
-				font-size: 0.85rem;
+				margin: 0.3rem 0 0.35rem;
+				font-size: 0.8rem;
 				line-height: 1.45;
-				color: #64748b;
+				color: #8a8278;
 				font-style: italic;
 				width: 100%;
 				max-width: none;
@@ -45,30 +156,53 @@
 	</head>
 	<body class="content-page">
 		<div class="content-page-inner">
-			<h1>Homer and Muriel Brown</h1>
-			<p class="major">This website presents a remarkable collection of letters and historical insight into the lives of Homer and Muriel Brown, Canadian missionaries who served in West China from 1912 to 1942. Set against a backdrop of profound social and political change, their letters offer a deeply personal perspective on education, faith, family, and cross-cultural exchange during a transformative period in Chinese history.</p>
-			<ul class="actions stacked story-nav-actions">
-				<li>
-					<a href="curator.html" class="button" target="_top">Talk to the Collection Curator</a>
-					<p class="story-nav-helper">
-						Meet the Curator — your guide to more than two thousand family letters. Ask questions in your own words, follow citations into original scans and transcripts, and explore missionary life, family history, and West China from 1912 to 1942 through guided conversation.
-					</p>
-				</li>
-				<li>
-					<a href="homer-and-muriel-brown.html" class="button" target="site-content">Homer and Muriel Brown</a>
-					<p class="story-nav-helper">
-						A biography of their years in West China—the Canadian mission in Chengdu, their education and church roles, and family life from 1912 to 1942.
-					</p>
-				</li>
-				<li>
-					<a href="gallery.html" class="button" target="site-content">Photo Gallery</a>
-					<p class="story-nav-helper">Placeholder: a short description for this section will be added as the page is built out.</p>
-				</li>
-			</ul>
-			<!--
-				Link to other panes without reloading the video shell, same folder:
-				<a href="another.html" target="site-content">Next page</a>
-			-->
+			<div class="story-intro">
+				<h1>Homer and Muriel Brown</h1>
+				<p class="major">This website presents a remarkable collection of family letters written by Canadian missionaries Homer and Muriel Brown during their years in West China, from 1912 to 1942. Set against profound social and political change, the letters offer a deeply personal view of education, faith, family, and cross-cultural life.</p>
+			</div>
+
+			<section class="collection-snapshot" aria-label="About this collection">
+				<h2>About this collection</h2>
+				<ul class="collection-snapshot-facts">
+					<li>
+						<span class="fact-value">2,000+</span>
+						<span class="fact-label">family letters</span>
+					</li>
+					<li>
+						<span class="fact-value">1912–1942</span>
+						<span class="fact-label">thirty years of correspondence</span>
+					</li>
+					<li>
+						<span class="fact-value">80+</span>
+						<span class="fact-label">bound volumes preserved</span>
+					</li>
+				</ul>
+				<p>Original handwritten and typewritten pages, with full transcripts — spanning Canada and West China, and the everyday lives of one missionary family.</p>
+			</section>
+
+			<section class="curator-entry" aria-label="Talk to the Collection Curator">
+				<p class="curator-entry-helper">
+					Begin with the Curator — your guide to the letters. Ask in your own words, follow citations into original scans and transcripts, and explore missionary life, family history, and West China through guided conversation.
+				</p>
+				<a href="curator.html" class="button primary" target="_top">Talk to the Collection Curator</a>
+			</section>
+
+			<section class="story-secondary" aria-label="More about the Browns">
+				<h2>Also on this site</h2>
+				<p class="story-secondary-lead">Background reading and photographs, if you prefer to browse before asking the Curator.</p>
+				<ul class="actions stacked story-nav-actions">
+					<li>
+						<a href="homer-and-muriel-brown.html" class="button" target="site-content">Homer and Muriel Brown</a>
+						<p class="story-nav-helper">
+							A short biography of their years in West China — the Canadian mission in Chengdu, education and church work, and family life from 1912 to 1942.
+						</p>
+					</li>
+					<li>
+						<a href="gallery.html" class="button" target="site-content">Photo Gallery</a>
+						<p class="story-nav-helper">Photographs from the Brown family years in China. (Gallery is still being built out.)</p>
+					</li>
+				</ul>
+			</section>
 		</div>
 	</body>
 </html>
