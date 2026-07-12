@@ -80,27 +80,48 @@
 				border-bottom: 1px solid #d4cfc6;
 			}
 
-			.curator-entry .button.primary {
-				width: auto;
-				max-width: 100%;
-				min-width: 18rem;
-				height: auto;
-				min-height: 3.25rem;
-				padding: 0.85rem 1.75rem;
-				line-height: 1.25;
-				font-size: 0.95rem;
-				font-weight: 700;
-				letter-spacing: 0.08em;
-				border-radius: 4px;
-				white-space: normal;
-			}
-
 			.curator-entry-helper {
 				margin: 0 0 0.85rem;
-				max-width: 38rem;
+				max-width: none;
+				width: 100%;
 				font-size: 0.95rem;
 				line-height: 1.55;
 				color: #3d3830;
+			}
+
+			body.content-page .actions.stacked.curator-nav-actions {
+				max-width: none;
+				width: 100%;
+				margin: 0;
+			}
+
+			body.content-page .actions.stacked.curator-nav-actions li {
+				padding-top: 0;
+			}
+
+			body.content-page .actions.stacked.curator-nav-actions li > .button {
+				width: 18rem;
+				max-width: 100%;
+				box-sizing: border-box;
+				background-color: #9a6b35;
+				border: 1px solid #7a5528;
+				color: #fff !important;
+				box-shadow: none;
+			}
+
+			body.content-page .actions.stacked.curator-nav-actions li > .button:hover {
+				background-color: #7a5528;
+				border-color: #5c4020;
+				color: #fff !important;
+			}
+
+			body.content-page .actions.stacked.curator-nav-actions li > .button:active {
+				background-color: #5c4020;
+				color: #fff !important;
+			}
+
+			body.content-page .actions.stacked.curator-nav-actions li > .button:after {
+				color: #fff;
 			}
 
 			.story-secondary {
@@ -184,7 +205,11 @@
 				<p class="curator-entry-helper">
 					Begin with the Curator — your guide to the letters. Ask in your own words, follow citations into original scans and transcripts, and explore missionary life, family history, and West China through guided conversation.
 				</p>
-				<a href="curator.html" class="button primary" target="_top">Talk to the Collection Curator</a>
+				<ul class="actions stacked curator-nav-actions">
+					<li>
+						<a href="curator.html" class="button" target="_top">Talk to the Collection Curator</a>
+					</li>
+				</ul>
 			</section>
 
 			<section class="story-secondary" aria-label="More about the Browns">
