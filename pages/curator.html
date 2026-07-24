@@ -468,9 +468,13 @@
 			white-space: nowrap;
 		}
 
-		.input-group-send:hover {
-			background: #7a5528;
+		.input-group-send:hover,
+		.input-group-send:focus,
+		.input-group-send:active {
+			background: #7a5528 !important;
 			border-color: #7a5528;
+			color: #fff !important;
+			box-shadow: none;
 		}
 
 		.input-group textarea:focus + .input-group-send {
