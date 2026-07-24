@@ -1,0 +1,9 @@
+# Brown China Letters — https://collingwood-web-design.github.io/brown-china-letters/
+# Allow content pages; keep the Curator app out of search indexes.
+
+User-agent: *
+Allow: /
+Disallow: /brown-china-letters/pages/curator.html
+Disallow: /pages/curator.html
+
+Sitemap: https://collingwood-web-design.github.io/brown-china-letters/sitemap.xml
