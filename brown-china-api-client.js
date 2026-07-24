@@ -7,7 +7,7 @@
  * <script>
  *   var API = "https://web-production-7ed4a.up.railway.app";
  *   BrownChinaApi.postChatJson(API, {
- *     agent: "narrator",
+ *     agent: "curator",
  *     message: "Hello",
  *     messages: [],
  *     stream: false
