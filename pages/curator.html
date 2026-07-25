@@ -1549,8 +1549,13 @@
 		}
 
 		function onScanImageError(img) {
+			if (!img || img.dataset.scanFallbackApplied === "1") return;
+			img.dataset.scanFallbackApplied = "1";
+			/* Clear handler first — if the fallback also fails (CDN SSL), avoid an infinite onerror loop. */
+			img.onerror = null;
+			img.removeAttribute("onerror");
 			img.classList.add("scan-load-failed");
-			img.src = siteAssetUrl("placeholder.svg");
+			img.src = "../images/placeholder.svg";
 			img.alt = "Scan could not be loaded";
 			var wrap = img.closest(".scan-page-wrap");
 			if (!wrap || wrap.querySelector(".scan-load-error")) return;
