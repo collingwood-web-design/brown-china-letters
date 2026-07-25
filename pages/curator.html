@@ -1643,7 +1643,7 @@
 				.join("");
 
 			return (
-				"<h3>" + escapeHtml(letter.title) + " — " + escapeHtml(letter.date_display) + "</h3>" +
+				"<h3>" + escapeHtml(letter.title) + " — " + escapeHtml(displayDateLabel(letter)) + "</h3>" +
 				'<div class="plaque-meta">' +
 				"<span><strong>Written at</strong> " + escapeHtml(letter.location || "—") + "</span>" +
 				"<span><strong>Format</strong> " + escapeHtml(letter.format || "—") + "</span>" +
@@ -1787,7 +1787,7 @@
 			splitTranscript.innerHTML = transcriptHtml;
 
 			openLetterBar.classList.add("is-visible");
-			openLetterLabel.textContent = letter.title + " (" + letter.date_display + ")";
+			openLetterLabel.textContent = letter.title + " (" + displayDateLabel(letter) + ")";
 
 			document.getElementById("copyLetterLink").addEventListener("click", function () {
 				var link = window.location.href.split("#")[0];
@@ -1879,34 +1879,72 @@
 			return candidates;
 		}
 
+		function isBlankDateValue(value) {
+			if (value == null) return true;
+			var s = String(value).trim();
+			if (!s) return true;
+			var lower = s.toLowerCase();
+			return (
+				lower === "null" ||
+				lower === "none" ||
+				lower === "undefined" ||
+				lower === "n/a" ||
+				lower === "na" ||
+				lower === "unknown"
+			);
+		}
+
+		function yearFromLetterRef(letterId) {
+			var m = /^(\d{4})/.exec(String(letterId || "").trim());
+			return m ? m[1] : "";
+		}
+
+		function undatedLabel(year) {
+			return year ? "No date, " + year : "No date";
+		}
+
 		function formatIsoDateLabel(iso) {
-			var parts = iso.split("-");
+			var parts = String(iso || "").trim().split("-");
 			if (parts.length !== 3) return iso;
+			var year = parts[0];
+			var monthNum = parseInt(parts[1], 10);
+			var dayNum = parseInt(parts[2], 10);
+			if (!year || year === "0000") return "No date";
+			if (!monthNum || !dayNum || isNaN(monthNum) || isNaN(dayNum)) {
+				return undatedLabel(year);
+			}
 			var months = [
 				"January", "February", "March", "April", "May", "June",
 				"July", "August", "September", "October", "November", "December",
 			];
-			var day = parseInt(parts[2], 10);
-			var month = months[parseInt(parts[1], 10) - 1] || parts[1];
-			return day + " " + month + " " + parts[0];
+			var month = months[monthNum - 1];
+			if (!month) return undatedLabel(year);
+			return dayNum + " " + month + " " + year;
+		}
+
+		/** Visitor-facing date for plaques, chips, and the reading bar. */
+		function displayDateLabel(source) {
+			source = source || {};
+			var letterId = source.letter_id || "";
+			var raw = source.date_display || source.date || source.chip_label || "";
+			if (!isBlankDateValue(raw)) {
+				var trimmed = String(raw).trim();
+				if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
+					return formatIsoDateLabel(trimmed);
+				}
+				return trimmed;
+			}
+			var isoMatch = /^(\d{4}-\d{2}-\d{2})/.exec(String(letterId));
+			if (isoMatch) {
+				return formatIsoDateLabel(isoMatch[1]);
+			}
+			return undatedLabel(yearFromLetterRef(letterId));
 		}
 
 		function citationChipLabel(citation) {
-			if (citation.chip_label) {
-				return citation.chip_label;
-			}
-			if (citation.date_display) {
-				return citation.date_display;
-			}
+			var label = displayDateLabel(citation);
+			if (label) return label;
 			var normalized = normalizeLetterRef(citation.letter_id);
-			var stemMatch = /^(\d{4}-\d{2}-\d{2})_(.+)_to_(.+)$/.exec(normalized);
-			if (stemMatch) {
-				return formatIsoDateLabel(stemMatch[1]);
-			}
-			var hybrid = /^(\d{4}-\d{2}-\d{2})[-_](.+)$/.exec(normalized);
-			if (hybrid) {
-				return formatIsoDateLabel(hybrid[1]);
-			}
 			return normalized.replace(/_/g, " ").replace(/-/g, " ");
 		}
 
