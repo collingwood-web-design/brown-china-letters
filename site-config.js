@@ -10,8 +10,8 @@
 
   global.SiteConfig = {
     apiBase: "https://web-production-7ed4a.up.railway.app",
-    assetBaseUrl: "https://cwd-cdn.com/",
-    siteAssetBaseUrl: "https://cwd-cdn.com/brownchina/",
+    assetBaseUrl: "https://media.cwd-cdn.com/",
+    siteAssetBaseUrl: "https://media.cwd-cdn.com/brownchina/",
     canonicalBase: "https://collingwood-web-design.github.io/brown-china-letters/",
   };
 })(typeof window !== "undefined" ? window : this);
